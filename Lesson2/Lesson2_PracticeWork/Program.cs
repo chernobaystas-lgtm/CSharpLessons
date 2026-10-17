@@ -11,51 +11,35 @@ namespace Lesson2_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: кількість парних, непарних та унікальних елементів масиву
+            // Завдання 5: мінімальне та максимальне значення у двовимірному масиві
             Random random = new Random();
-            int[] array = new int[10];
+            int[,] array = new int[4, 5];
 
-            Write("Масив: ");
-            for (int i = 0; i < array.Length; i++)
+            WriteLine("Масив:");
+            for (int i = 0; i < array.GetLength(0); i++)
             {
-                array[i] = random.Next(1, 21);
-                Write(array[i] + " ");
+                for (int j = 0; j < array.GetLength(1); j++)
+                {
+                    array[i, j] = random.Next(-50, 51);
+                    Write($"{array[i, j],5}");
+                }
+                WriteLine();
             }
-            WriteLine();
 
-            int evenCount = 0;
-            int oddCount = 0;
-            int uniqueCount = 0;
+            int min = array[0, 0];
+            int max = array[0, 0];
 
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < array.GetLength(0); i++)
             {
-                if (array[i] % 2 == 0)
+                for (int j = 0; j < array.GetLength(1); j++)
                 {
-                    evenCount++;
-                }
-                else
-                {
-                    oddCount++;
-                }
-
-                int occurrences = 0;
-                for (int j = 0; j < array.Length; j++)
-                {
-                    if (array[i] == array[j])
-                    {
-                        occurrences++;
-                    }
-                }
-
-                if (occurrences == 1)
-                {
-                    uniqueCount++;
+                    if (array[i, j] < min) min = array[i, j];
+                    if (array[i, j] > max) max = array[i, j];
                 }
             }
 
-            WriteLine($"Парних елементів: {evenCount}");
-            WriteLine($"Непарних елементів: {oddCount}");
-            WriteLine($"Унікальних елементів: {uniqueCount}");
+            WriteLine($"Мінімальне значення: {min}");
+            WriteLine($"Максимальне значення: {max}");
         }
     }
 }
