@@ -11,10 +11,29 @@ namespace Lesson1_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: вивести цитату Б'ярна Страуструпа
-            WriteLine("It's easy to win forgiveness for being wrong;");
-            WriteLine("being right is what gets you into real trouble.");
-            WriteLine("Bjarne Stroustrup");
+            // Завдання 6: лінія за заданими параметрами
+            Write("Довжина лінії: ");
+            int length = int.Parse(ReadLine()!);
+            Write("Символ-заповнювач: ");
+            char symbol = ReadLine()![0];
+            Write("Напрямок (h - горизонтальна, v - вертикальна): ");
+            string direction = ReadLine()!.ToLower();
+
+            if (direction == "h")
+            {
+                WriteLine(new string(symbol, length));
+            }
+            else if (direction == "v")
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    WriteLine(symbol);
+                }
+            }
+            else
+            {
+                WriteLine("Невірний напрямок!");
+            }
         }
     }
 }
