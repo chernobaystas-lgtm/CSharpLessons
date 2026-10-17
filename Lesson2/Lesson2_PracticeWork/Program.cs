@@ -11,7 +11,7 @@ namespace Lesson2_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: кількість парних, непарних та унікальних елементів масиву
+            // Завдання 2: кількість значень в масиві менших за задане число
             Random random = new Random();
             int[] array = new int[10];
 
@@ -23,28 +23,24 @@ namespace Lesson2_PracticeWork
             }
             WriteLine();
 
-            int evenCount = 0;
-            int oddCount = 0;
-            int uniqueCount = 0;
+            Write("Введіть число: ");
+            if (!int.TryParse(ReadLine(), out int limit))
+            {
+                WriteLine("Помилка: потрібно ввести ціле число!");
+                return;
+            }
+
+            int count = 0;
 
             for (int i = 0; i < array.Length; i++)
             {
-                if (array[i] % 2 == 0)
+                if (array[i] < limit)
                 {
-                    evenCount++;
+                    count++;
                 }
-                else
-                {
-                    oddCount++;
-                }
+            }
 
-                int occurrences = 0;
-                for (int j = 0; j < array.Length; j++)
-                {
-                    if (array[i] == array[j])
-                    {
-                        occurrences++;
-                    }
-                }
-
-                if (occurrences == 1)
+            WriteLine($"Кількість значень менших, ніж {limit}: {count}");
+        }
+    }
+}
