@@ -11,45 +11,51 @@ namespace Lesson3_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: метод, що повертає добуток чисел у вказаному діапазоні
-            Write("Введіть початок діапазону: ");
-            if (!int.TryParse(ReadLine(), out int from))
-            {
-                WriteLine("Помилка: потрібно ввести ціле число!");
-                return;
-            }
+            // Завдання 4: метод видаляє зайві пробіли та виділяє верхнім регістром слова,
+            // у яких перший символ зустрічається більше одного разу
+            Write("Введіть рядок: ");
+            string text = ReadLine()!;
 
-            Write("Введіть кінець діапазону: ");
-            if (!int.TryParse(ReadLine(), out int to))
-            {
-                WriteLine("Помилка: потрібно ввести ціле число!");
-                return;
-            }
+            string result = Normalize(text);
 
-            long result = Product(from, to);
-
-            WriteLine($"Добуток чисел від {from} до {to}: {result}");
+            WriteLine($"Результат: {result}");
         }
 
-        // Повертає добуток усіх цілих чисел від from до to включно.
-        // Якщо межі вказані в неправильному порядку, міняє їх місцями.
-        static long Product(int from, int to)
+        // Видаляє зайві пробіли (на початку, в кінці та між словами залишає по одному).
+        // Слова, що містять свій перший символ більше одного разу, записує великими літерами.
+        static string Normalize(string text)
         {
-            if (from > to)
+            string[] words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            string result = "";
+
+            for (int i = 0; i < words.Length; i++)
             {
-                int temp = from;
-                from = to;
-                to = temp;
+                string word = words[i];
+                char first = char.ToLower(word[0]);
+                int count = 0;
+
+                for (int j = 0; j < word.Length; j++)
+                {
+                    if (char.ToLower(word[j]) == first)
+                    {
+                        count++;
+                    }
+                }
+
+                if (count > 1)
+                {
+                    word = word.ToUpper();
+                }
+
+                if (i > 0)
+                {
+                    result += " ";
+                }
+
+                result += word;
             }
 
-            long product = 1;
-
-            for (int i = from; i <= to; i++)
-            {
-                product *= i;
-            }
-
-            return product;
+            return result;
         }
     }
 }
