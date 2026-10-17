@@ -48,3 +48,14 @@ namespace Lesson2_PracticeWork
                 }
 
                 if (occurrences == 1)
+                {
+                    uniqueCount++;
+                }
+            }
+
+            WriteLine($"Парних елементів: {evenCount}");
+            WriteLine($"Непарних елементів: {oddCount}");
+            WriteLine($"Унікальних елементів: {uniqueCount}");
+        }
+    }
+}
