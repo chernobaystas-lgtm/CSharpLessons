@@ -11,51 +11,29 @@ namespace Lesson2_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: кількість парних, непарних та унікальних елементів масиву
-            Random random = new Random();
-            int[] array = new int[10];
+            // Завдання 9: кількість входжень підрядка в рядок
+            Write("Користувач ввів: ");
+            string sourceString = ReadLine()!;
 
-            Write("Масив: ");
-            for (int i = 0; i < array.Length; i++)
+            Write("Підрядок для пошуку: ");
+            string searchWord = ReadLine()!;
+
+            if (string.IsNullOrEmpty(searchWord))
             {
-                array[i] = random.Next(1, 21);
-                Write(array[i] + " ");
-            }
-            WriteLine();
-
-            int evenCount = 0;
-            int oddCount = 0;
-            int uniqueCount = 0;
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i] % 2 == 0)
-                {
-                    evenCount++;
-                }
-                else
-                {
-                    oddCount++;
-                }
-
-                int occurrences = 0;
-                for (int j = 0; j < array.Length; j++)
-                {
-                    if (array[i] == array[j])
-                    {
-                        occurrences++;
-                    }
-                }
-
-                if (occurrences == 1)
-                {
-                    uniqueCount++;
-                }
+                WriteLine("Помилка: підрядок для пошуку не може бути порожнім!");
+                return;
             }
 
-            WriteLine($"Парних елементів: {evenCount}");
-            WriteLine($"Непарних елементів: {oddCount}");
-            WriteLine($"Унікальних елементів: {uniqueCount}");
+            int count = 0;
+            int index = 0;
+
+            while ((index = sourceString.IndexOf(searchWord, index, StringComparison.Ordinal)) != -1)
+            {
+                count++;
+                index += searchWord.Length;
+            }
+
+            WriteLine($"Результат пошуку: {count}");
         }
     }
 }
