@@ -321,12 +321,6 @@ public class Employee
     {
         return obj is Employee other && salary == other.salary;
     }
-
-    public override int GetHashCode()
-    {
-        return salary.GetHashCode();
-    }
-
     // Копія співробітника з іншою зарплатою (оригінал не змінюється)
     private Employee WithSalary(int newSalary)
     {
