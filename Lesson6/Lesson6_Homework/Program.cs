@@ -12,54 +12,60 @@ class Program
         OutputEncoding = Encoding.UTF8;
         InputEncoding = Encoding.UTF8;
 
-        // Завдання 1: клас «Співробітник» із заробітною платою та перевантаженням операторів
+        // Завдання 3: клас «Кредитна картка» з перевантаженням операторів
         try
         {
-            Employee vaska = new Employee();
-            vaska.Input();
+            CreditCard card = new CreditCard();
+            card.Input();
 
-            int bonus = ReadInt("Введіть премію: ");
-            vaska = vaska + bonus;
+            decimal increase = ReadMoney("Введіть, на скільки збільшити суму грошей: ");
+            card = card + increase;
 
-            int cut = ReadInt("Введіть, на скільки зменшити зарплату: ");
-            vaska = vaska - cut;
-
-            WriteLine();
-            WriteLine("Дані співробітника:");
-            vaska.Show();
-
-            Employee boss = new Employee("Іван Іванович", new DateTime(1985, 5, 12),
-                "+380991234567", "boss@company.com", "Директор", "Управління", 80000);
+            decimal decrease = ReadMoney("Введіть, на скільки зменшити суму грошей: ");
+            card = card - decrease;
 
             WriteLine();
-            WriteLine($"Зарплата директора: {boss.Salary}");
+            WriteLine("Дані картки:");
+            card.Show();
 
-            if (vaska > boss)
-            {
-                WriteLine("Васька заробляє більше за директора");
-            }
-            else if (vaska < boss)
-            {
-                WriteLine("Васька заробляє менше за директора");
-            }
+            CreditCard other = new CreditCard("5500 0000 0000 0004", "Петренко Петро",
+                "321", new DateTime(2030, 12, 1), 5000);
 
-            if (vaska == boss)
-            {
-                WriteLine("Зарплати однакові");
-            }
+            WriteLine();
+            WriteLine($"Інша картка: сума {other.Money}, CVC 321");
 
-            if (vaska != boss)
+            // < і > порівнюють суму грошей
+            if (card > other)
             {
-                WriteLine("Зарплати різні");
+                WriteLine("На вашій картці грошей більше");
             }
-
-            if (vaska.Equals(boss))
+            else if (card < other)
             {
-                WriteLine("Equals підтверджує рівність зарплат");
+                WriteLine("На вашій картці грошей менше");
             }
             else
             {
-                WriteLine("Equals: зарплати не рівні");
+                WriteLine("Сума грошей однакова");
+            }
+
+            // == і != порівнюють CVC код
+            if (card == other)
+            {
+                WriteLine("CVC коди однакові");
+            }
+
+            if (card != other)
+            {
+                WriteLine("CVC коди різні");
+            }
+
+            if (card.Equals(other))
+            {
+                WriteLine("Equals підтверджує рівність CVC");
+            }
+            else
+            {
+                WriteLine("Equals: CVC не рівні");
             }
         }
         catch (ArgumentException ex)
@@ -68,167 +74,142 @@ class Program
         }
     }
 
-    // Запитує ціле число не менше нуля, поки не введуть коректне
-    static int ReadInt(string message)
+    // Запитує суму не менше нуля, поки не введуть коректну (можна з крапкою або комою)
+    static decimal ReadMoney(string message)
     {
         while (true)
         {
             Write(message);
+            string input = (ReadLine() ?? "").Replace(',', '.');
 
-            if (int.TryParse(ReadLine(), out int value) && value >= 0)
+            if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value)
+                && value >= 0)
             {
                 return value;
             }
 
-            WriteLine("Помилка: потрібно ввести ціле число не менше нуля.");
+            WriteLine("Помилка: потрібно ввести число не менше нуля.");
         }
     }
 }
 
-public class Employee
+public class CreditCard
 {
-    private string fullName = "";
-    private DateTime birthDate;
-    private string phone = "";
-    private string email = "";
-    private string position = "";
-    private string duties = "";
-    private int salary;
+    private string number = "";
+    private string ownerName = "";
+    private string cvc = "";
+    private DateTime expiryDate;
+    private decimal money;
 
-    public Employee()
+    public CreditCard()
     {
     }
 
-    public Employee(string fullName, DateTime birthDate, string phone,
-                    string email, string position, string duties, int salary)
+    public CreditCard(string number, string ownerName, string cvc, DateTime expiryDate, decimal money)
     {
-        FullName = fullName;
-        BirthDate = birthDate;
-        Phone = phone;
-        Email = email;
-        Position = position;
-        Duties = duties;
-        Salary = salary;
+        Number = number;
+        OwnerName = ownerName;
+        Cvc = cvc;
+        ExpiryDate = expiryDate;
+        Money = money;
     }
 
-    public string FullName
+    // Номер картки: 13-19 цифр і перевірка за алгоритмом Луна
+    public string Number
     {
-        get { return fullName; }
+        get { return number; }
+        set
+        {
+            string cleaned = (value ?? "").Replace(" ", "").Replace("-", "");
+
+            if (cleaned.Length < 13 || cleaned.Length > 19 || !IsDigits(cleaned))
+                throw new ArgumentException("Номер картки має складатися з 13-19 цифр");
+
+            if (!IsLuhnValid(cleaned))
+                throw new ArgumentException("Номер картки не пройшов перевірку за алгоритмом Луна");
+
+            number = cleaned;
+        }
+    }
+
+    public string OwnerName
+    {
+        get { return ownerName; }
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("ПІБ не може бути порожнім");
-            fullName = value.Trim();
+                throw new ArgumentException("ПІБ власника не може бути порожнім");
+            ownerName = value.Trim();
         }
     }
 
-    public DateTime BirthDate
+    public string Cvc
     {
-        get { return birthDate; }
-        set
-        {
-            if (value > DateTime.Today || value.Year < 1900)
-                throw new ArgumentException("Некоректна дата народження");
-            birthDate = value;
-        }
-    }
-
-    public string Phone
-    {
-        get { return phone; }
-        set
-        {
-            string cleaned = (value ?? "").Replace(" ", "").Replace("-", "")
-                                          .Replace("(", "").Replace(")", "");
-            string digits = cleaned.StartsWith("+") ? cleaned.Substring(1) : cleaned;
-
-            if (digits.Length < 10 || digits.Length > 15 || !IsDigits(digits))
-                throw new ArgumentException("Телефон має містити від 10 до 15 цифр");
-
-            phone = cleaned;
-        }
-    }
-
-    public string Email
-    {
-        get { return email; }
+        get { return cvc; }
         set
         {
             value = (value ?? "").Trim();
-            int at = value.IndexOf('@');
 
-            if (at <= 0 || at != value.LastIndexOf('@') || value.Contains(' ') ||
-                value.IndexOf('.', at) <= at + 1 || value.EndsWith("."))
-                throw new ArgumentException("Невірний формат email, приклад: name@company.com");
+            if (value.Length != 3 || !IsDigits(value))
+                throw new ArgumentException("CVC має складатися рівно з 3 цифр");
 
-            email = value;
+            cvc = value;
         }
     }
 
-    public string Position
+    // Дата завершення роботи картки: картка діє до кінця вказаного місяця
+    public DateTime ExpiryDate
     {
-        get { return position; }
+        get { return expiryDate; }
         set
         {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Посада не може бути порожньою");
-            position = value.Trim();
+            if (new DateTime(value.Year, value.Month, 1).AddMonths(1) <= DateTime.Today)
+                throw new ArgumentException("Термін дії картки вже закінчився");
+
+            expiryDate = value;
         }
     }
 
-    public string Duties
+    // Сума грошей на картці. Оператори <, > та +, - працюють саме з нею
+    public decimal Money
     {
-        get { return duties; }
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Опис обов'язків не може бути порожнім");
-            duties = value.Trim();
-        }
-    }
-
-    // Заробітна плата. Усі оператори та Show працюють саме з цим полем
-    public int Salary
-    {
-        get { return salary; }
+        get { return money; }
         set
         {
             if (value < 0)
-                throw new ArgumentException("Зарплата не може бути від'ємною");
-            salary = value;
+                throw new ArgumentException("Сума грошей не може бути від'ємною");
+            money = value;
         }
     }
 
     public void Input()
     {
-        FullName = Ask("ПІБ: ");
+        Number = Ask("Номер картки: ");
+        OwnerName = Ask("ПІБ власника: ");
+        Cvc = Ask("CVC: ");
 
         while (true)
         {
-            string dateInput = Ask("Дата народження (дд.мм.рррр): ");
-            if (DateTime.TryParseExact(dateInput, "dd.MM.yyyy", CultureInfo.InvariantCulture,
+            string dateInput = Ask("Дата завершення (ММ/рр): ");
+            if (DateTime.TryParseExact(dateInput, "MM/yy", CultureInfo.InvariantCulture,
                                        DateTimeStyles.None, out DateTime date))
             {
-                BirthDate = date;
+                ExpiryDate = date;
                 break;
             }
-            WriteLine("Невірний формат дати, приклад: 25.03.1990. Спробуйте ще раз.");
+            WriteLine("Невірний формат дати, приклад: 12/30. Спробуйте ще раз.");
         }
-
-        Phone = Ask("Телефон: ");
-        Email = Ask("Робочий email: ");
-        Position = Ask("Посада: ");
-        Duties = Ask("Опис службових обов'язків: ");
 
         while (true)
         {
-            string salaryInput = Ask("Зарплата: ");
-            if (int.TryParse(salaryInput, out int value) && value >= 0)
+            string moneyInput = Ask("Сума грошей на картці: ").Replace(',', '.');
+            if (decimal.TryParse(moneyInput, NumberStyles.Number, CultureInfo.InvariantCulture,
+                                 out decimal value) && value >= 0)
             {
-                Salary = value;
+                Money = value;
                 break;
             }
-            WriteLine("Потрібно ввести ціле число не менше нуля. Спробуйте ще раз.");
+            WriteLine("Потрібно ввести число не менше нуля. Спробуйте ще раз.");
         }
     }
 
@@ -238,15 +219,24 @@ public class Employee
         return ReadLine() ?? "";
     }
 
+    // Номер приховуємо, залишаємо останні 4 цифри, CVC не показуємо
     public void Show()
     {
-        WriteLine($"ПІБ: {fullName}");
-        WriteLine($"Дата народження: {birthDate:dd.MM.yyyy}");
-        WriteLine($"Телефон: {phone}");
-        WriteLine($"Email: {email}");
-        WriteLine($"Посада: {position}");
-        WriteLine($"Обов'язки: {duties}");
-        WriteLine($"Зарплата: {salary}");
+        WriteLine($"Номер картки: {HiddenNumber()}");
+        WriteLine($"Власник: {ownerName}");
+        WriteLine($"CVC: ***");
+        WriteLine($"Дійсна до: {expiryDate:MM/yy}");
+        WriteLine($"Сума грошей: {money}");
+    }
+
+    public override string ToString()
+    {
+        return $"Картка {HiddenNumber()}, власник: {ownerName}, дійсна до {expiryDate:MM/yy}, сума: {money}";
+    }
+
+    private string HiddenNumber()
+    {
+        return new string('*', number.Length - 4) + number.Substring(number.Length - 4);
     }
 
     private static bool IsDigits(string s)
@@ -258,72 +248,89 @@ public class Employee
         return true;
     }
 
-    public override string ToString()
+    // Алгоритм Луна: контрольна сума номера картки
+    private static bool IsLuhnValid(string cardNumber)
     {
-        return $"ПІБ: {fullName}\n" +
-               $"Дата народження: {birthDate:dd.MM.yyyy}\n" +
-               $"Телефон: {phone}\n" +
-               $"Email: {email}\n" +
-               $"Посада: {position}\n" +
-               $"Обов'язки: {duties}\n" +
-               $"Зарплата: {salary}";
+        int sum = 0;
+        bool doubleDigit = false;
+
+        for (int i = cardNumber.Length - 1; i >= 0; i--)
+        {
+            int digit = cardNumber[i] - '0';
+
+            if (doubleDigit)
+            {
+                digit *= 2;
+
+                if (digit > 9)
+                {
+                    digit -= 9;
+                }
+            }
+
+            sum += digit;
+            doubleDigit = !doubleDigit;
+        }
+
+        return sum % 10 == 0;
     }
 
-    // Збільшення зарплати на вказану кількість. Повертає нового співробітника
-    public static Employee operator +(Employee employee, int amount)
+    // Збільшення суми грошей на вказану кількість. Повертає нову картку
+    public static CreditCard operator +(CreditCard card, decimal amount)
     {
         if (amount < 0)
             throw new ArgumentException("Сума не може бути від'ємною");
 
-        return employee.WithSalary(employee.salary + amount);
+        return card.WithMoney(card.money + amount);
     }
 
-    // Зменшення зарплати на вказану кількість. Повертає нового співробітника
-    public static Employee operator -(Employee employee, int amount)
+    // Зменшення суми грошей на вказану кількість. Повертає нову картку
+    public static CreditCard operator -(CreditCard card, decimal amount)
     {
         if (amount < 0)
             throw new ArgumentException("Сума не може бути від'ємною");
 
-        if (amount > employee.salary)
-            throw new ArgumentException("Зарплата не може стати від'ємною");
+        if (amount > card.money)
+            throw new ArgumentException("На картці недостатньо грошей");
 
-        return employee.WithSalary(employee.salary - amount);
+        return card.WithMoney(card.money - amount);
     }
 
-    // Перевірка на рівність зарплат
-    public static bool operator ==(Employee? employee1, Employee? employee2)
+    // Перевірка на рівність CVC коду
+    public static bool operator ==(CreditCard? card1, CreditCard? card2)
     {
-        if (ReferenceEquals(employee1, employee2)) return true;
-        if (employee1 is null || employee2 is null) return false;
+        if (ReferenceEquals(card1, card2)) return true;
+        if (card1 is null || card2 is null) return false;
 
-        return employee1.salary == employee2.salary;
+        return card1.cvc == card2.cvc;
     }
 
-    public static bool operator !=(Employee? employee1, Employee? employee2)
+    public static bool operator !=(CreditCard? card1, CreditCard? card2)
     {
-        return !(employee1 == employee2);
+        return !(card1 == card2);
     }
 
-    // Перевірка на більшу зарплату
-    public static bool operator >(Employee employee1, Employee employee2)
+    // Перевірка на більшу суму грошей
+    public static bool operator >(CreditCard card1, CreditCard card2)
     {
-        return employee1.salary > employee2.salary;
+        return card1.money > card2.money;
     }
 
-    // Перевірка на меншу зарплату
-    public static bool operator <(Employee employee1, Employee employee2)
+    // Перевірка на меншу суму грошей
+    public static bool operator <(CreditCard card1, CreditCard card2)
     {
-        return employee1.salary < employee2.salary;
+        return card1.money < card2.money;
     }
 
-    // Equals узгоджений з ==: порівнює зарплати
+    // Equals узгоджений з ==: порівнює CVC
     public override bool Equals(object? obj)
     {
-        return obj is Employee other && salary == other.salary;
+        return obj is CreditCard other && cvc == other.cvc;
     }
-    // Копія співробітника з іншою зарплатою (оригінал не змінюється)
-    private Employee WithSalary(int newSalary)
+
+    // Копія картки з іншою сумою грошей (оригінал не змінюється)
+    private CreditCard WithMoney(decimal newMoney)
     {
-        return new Employee(fullName, birthDate, phone, email, position, duties, newSalary);
+        return new CreditCard(number, ownerName, cvc, expiryDate, newMoney);
     }
 }
