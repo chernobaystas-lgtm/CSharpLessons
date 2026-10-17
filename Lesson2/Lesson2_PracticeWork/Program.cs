@@ -11,51 +11,30 @@ namespace Lesson2_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: кількість парних, непарних та унікальних елементів масиву
-            Random random = new Random();
-            int[] array = new int[10];
+            // Завдання 6: кількість слів у реченні
+            Write("Введіть речення: ");
+            string sentence = ReadLine()!;
 
-            Write("Масив: ");
-            for (int i = 0; i < array.Length; i++)
+            int count = 0;
+            bool inWord = false;
+
+            for (int i = 0; i < sentence.Length; i++)
             {
-                array[i] = random.Next(1, 21);
-                Write(array[i] + " ");
-            }
-            WriteLine();
-
-            int evenCount = 0;
-            int oddCount = 0;
-            int uniqueCount = 0;
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                if (array[i] % 2 == 0)
+                if (sentence[i] != ' ')
                 {
-                    evenCount++;
+                    if (!inWord)
+                    {
+                        count++;
+                        inWord = true;
+                    }
                 }
                 else
                 {
-                    oddCount++;
-                }
-
-                int occurrences = 0;
-                for (int j = 0; j < array.Length; j++)
-                {
-                    if (array[i] == array[j])
-                    {
-                        occurrences++;
-                    }
-                }
-
-                if (occurrences == 1)
-                {
-                    uniqueCount++;
+                    inWord = false;
                 }
             }
 
-            WriteLine($"Парних елементів: {evenCount}");
-            WriteLine($"Непарних елементів: {oddCount}");
-            WriteLine($"Унікальних елементів: {uniqueCount}");
+            WriteLine($"Кількість слів: {count}");
         }
     }
 }
