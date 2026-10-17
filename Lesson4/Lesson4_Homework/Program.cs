@@ -1,119 +1,109 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using static System.Console;
 
 namespace Lesson4_Homework
 {
+    // Клас «Співробітник»
+    class Employee
+    {
+        // Поля класу закриті, доступ до них тільки через методи
+        private string fullName = "";
+        private DateTime birthDate;
+        private string phone = "";
+        private string email = "";
+        private string position = "";
+        private string jobDescription = "";
+
+        // Введення даних з клавіатури
+        public void Input()
+        {
+            Write("ПІБ: ");
+            fullName = ReadLine()!;
+
+            // повторюємо запит, поки не введуть коректну дату
+            while (true)
+            {
+                Write("Дата народження (дд.мм.рррр): ");
+
+                if (DateTime.TryParseExact(ReadLine(), "dd.MM.yyyy", CultureInfo.InvariantCulture,
+                                           DateTimeStyles.None, out birthDate))
+                {
+                    break;
+                }
+
+                WriteLine("Помилка: невірний формат дати! Приклад: 22.12.1990");
+            }
+
+            Write("Контактний телефон: ");
+            phone = ReadLine()!;
+
+            Write("Робочий email: ");
+            email = ReadLine()!;
+
+            Write("Посада: ");
+            position = ReadLine()!;
+
+            Write("Опис службових обов'язків: ");
+            jobDescription = ReadLine()!;
+        }
+
+        // Виведення даних на екран
+        public void Print()
+        {
+            WriteLine($"ПІБ: {fullName}");
+            WriteLine($"Дата народження: {birthDate:dd.MM.yyyy}");
+            WriteLine($"Контактний телефон: {phone}");
+            WriteLine($"Робочий email: {email}");
+            WriteLine($"Посада: {position}");
+            WriteLine($"Службові обов'язки: {jobDescription}");
+        }
+
+        // Доступ до окремих полів: отримати значення
+        public string GetFullName() { return fullName; }
+        public DateTime GetBirthDate() { return birthDate; }
+        public string GetPhone() { return phone; }
+        public string GetEmail() { return email; }
+        public string GetPosition() { return position; }
+        public string GetJobDescription() { return jobDescription; }
+
+        // Доступ до окремих полів: змінити значення
+        public void SetFullName(string value) { fullName = value; }
+        public void SetBirthDate(DateTime value) { birthDate = value; }
+        public void SetPhone(string value) { phone = value; }
+        public void SetEmail(string value) { email = value; }
+        public void SetPosition(string value) { position = value; }
+        public void SetJobDescription(string value) { jobDescription = value; }
+    }
+
     class Program
     {
-        // Цифри для систем числення до 16 включно
-        const string Digits = "0123456789ABCDEF";
-
         static void Main(string[] args)
         {
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: калькулятор для переведення числа з однієї системи числення в іншу
-            WriteLine("Оберіть напрямок конвертації:");
-            WriteLine("1 - з десяткової в двійкову");
-            WriteLine("2 - з двійкової в десяткову");
-            WriteLine("3 - з десяткової у вісімкову");
-            WriteLine("4 - з вісімкової в десяткову");
-            WriteLine("5 - з десяткової в шістнадцяткову");
-            WriteLine("6 - з шістнадцяткової в десяткову");
-            Write("Ваш вибір: ");
-            string choice = ReadLine()!;
+            // Завдання 6: клас «Співробітник»
+            Employee employee = new Employee();
 
-            int fromBase;
-            int toBase;
+            WriteLine("Введіть дані співробітника:");
+            employee.Input();
 
-            switch (choice)
-            {
-                case "1": fromBase = 10; toBase = 2; break;
-                case "2": fromBase = 2; toBase = 10; break;
-                case "3": fromBase = 10; toBase = 8; break;
-                case "4": fromBase = 8; toBase = 10; break;
-                case "5": fromBase = 10; toBase = 16; break;
-                case "6": fromBase = 16; toBase = 10; break;
-                default:
-                    WriteLine("Помилка: потрібно ввести число від 1 до 6!");
-                    return;
-            }
+            WriteLine();
+            WriteLine("Дані співробітника:");
+            employee.Print();
 
-            Write($"Введіть число (система числення {fromBase}): ");
-            string input = ReadLine()!.Trim();
+            // доступ до окремих полів через методи класу
+            WriteLine();
+            WriteLine($"Посада (через GetPosition): {employee.GetPosition()}");
 
-            try
-            {
-                // спочатку переводимо в десяткову (тип int), потім у потрібну систему
-                int value = FromBase(input, fromBase);
-                string result = ToBase(value, toBase);
+            Write("Введіть новий телефон: ");
+            employee.SetPhone(ReadLine()!);
 
-                WriteLine($"Результат: {result} (система числення {toBase})");
-            }
-            catch (FormatException)
-            {
-                WriteLine($"Помилка: у числі є символи, яких не може бути в системі числення {fromBase}!");
-            }
-            catch (OverflowException)
-            {
-                WriteLine("Помилка: число виходить за межі діапазону типу int!");
-            }
-            catch (ArgumentException)
-            {
-                WriteLine("Помилка: введено порожній рядок!");
-            }
-        }
-
-        // Переводить число з десяткової системи в систему з основою toBase
-        static string ToBase(int value, int toBase)
-        {
-            if (value == 0)
-            {
-                return "0";
-            }
-
-            string result = "";
-
-            while (value > 0)
-            {
-                // остача від ділення це наступна цифра, додаємо її на початок
-                result = Digits[value % toBase] + result;
-                value /= toBase;
-            }
-
-            return result;
-        }
-
-        // Переводить рядок із системи з основою fromBase в десяткове число (int).
-        // Кидає виняток, якщо ввід неправильний:
-        // ArgumentException - порожній рядок,
-        // FormatException - символ, якого не може бути в цій системі,
-        // OverflowException - число виходить за межі int.
-        static int FromBase(string number, int fromBase)
-        {
-            if (string.IsNullOrEmpty(number))
-            {
-                throw new ArgumentException("Порожній рядок");
-            }
-
-            int result = 0;
-
-            for (int i = 0; i < number.Length; i++)
-            {
-                int digit = Digits.IndexOf(char.ToUpper(number[i]));
-
-                if (digit == -1 || digit >= fromBase)
-                {
-                    throw new FormatException();
-                }
-
-                // checked сам кидає OverflowException, якщо число вийшло за межі int
-                result = checked(result * fromBase + digit);
-            }
-
-            return result;
+            WriteLine();
+            WriteLine("Дані після зміни телефону:");
+            employee.Print();
         }
     }
 }
