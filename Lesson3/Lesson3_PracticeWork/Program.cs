@@ -11,69 +11,45 @@ namespace Lesson3_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 2: метод перевіряє, чи є число числом Фібоначчі
-            Write("Введіть невід'ємне ціле число: ");
-            if (!int.TryParse(ReadLine(), out int number) || number < 0)
+            // Завдання 1: метод, що повертає добуток чисел у вказаному діапазоні
+            Write("Введіть початок діапазону: ");
+            if (!int.TryParse(ReadLine(), out int from))
             {
-                WriteLine("Помилка: потрібно ввести невід'ємне ціле число!");
+                WriteLine("Помилка: потрібно ввести ціле число!");
                 return;
             }
 
-            int original = number;
-
-            bool isFibonacci = IsFibonacci(ref number, out int index);
-
-            if (isFibonacci)
+            Write("Введіть кінець діапазону: ");
+            if (!int.TryParse(ReadLine(), out int to))
             {
-                WriteLine($"Число {original} є числом Фібоначчі, його порядковий номер: {index}");
+                WriteLine("Помилка: потрібно ввести ціле число!");
+                return;
             }
-            else
-            {
-                WriteLine($"Число {original} не є числом Фібоначчі.");
-                WriteLine($"Найближче число Фібоначчі: {number}, його порядковий номер: {index}");
-            }
+
+            long result = Product(from, to);
+
+            WriteLine($"Добуток чисел від {from} до {to}: {result}");
         }
 
-        // Повертає true, якщо number є числом Фібоначчі, і записує в index його порядковий номер.
-        // Інакше повертає false, замінює number на найближче за значенням число Фібоначчі
-        // і записує в index порядковий номер цього числа.
-        // Нумерація: F(0) = 0, F(1) = 1, F(2) = 1, F(3) = 2, F(4) = 3, F(5) = 5 ...
-        static bool IsFibonacci(ref int number, out int index)
+        // Повертає добуток усіх цілих чисел від from до to включно.
+        // Якщо межі вказані в неправильному порядку, міняє їх місцями.
+        static long Product(int from, int to)
         {
-            long previous = 0;  // F(k-1)
-            long current = 0;   // F(k)
-            long next = 1;      // F(k+1)
-            int k = 0;
-
-            // йдемо по послідовності, поки не дійдемо до числа, яке не менше за number
-            while (current < number)
+            if (from > to)
             {
-                previous = current;
-                current = next;
-                next = previous + current;
-                k++;
+                int temp = from;
+                from = to;
+                to = temp;
             }
 
-            if (current == number)
+            long product = 1;
+
+            for (int i = from; i <= to; i++)
             {
-                index = k;
-                return true;
+                product *= i;
             }
 
-            // number лежить між previous і current, обираємо ближче
-            // (якщо відстані однакові, беремо менше)
-            if (number - previous <= current - number)
-            {
-                number = (int)previous;
-                index = k - 1;
-            }
-            else
-            {
-                number = (int)current;
-                index = k;
-            }
-
-            return false;
+            return product;
         }
     }
 }
