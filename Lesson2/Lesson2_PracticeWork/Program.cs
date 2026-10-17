@@ -11,51 +11,86 @@ namespace Lesson2_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: кількість парних, непарних та унікальних елементів масиву
-            Random random = new Random();
-            int[] array = new int[10];
-
-            Write("Масив: ");
-            for (int i = 0; i < array.Length; i++)
+            // Завдання 4: спільні елементи двох масивів без повторень у третьому масиві
+            Write("Введіть розмір першого масиву M: ");
+            if (!int.TryParse(ReadLine(), out int m) || m <= 0)
             {
-                array[i] = random.Next(1, 21);
-                Write(array[i] + " ");
+                WriteLine("Помилка: розмір має бути цілим числом більше нуля!");
+                return;
+            }
+
+            Write("Введіть розмір другого масиву N: ");
+            if (!int.TryParse(ReadLine(), out int n) || n <= 0)
+            {
+                WriteLine("Помилка: розмір має бути цілим числом більше нуля!");
+                return;
+            }
+
+            Random random = new Random();
+            int[] first = new int[m];
+            int[] second = new int[n];
+
+            Write("Перший масив: ");
+            for (int i = 0; i < first.Length; i++)
+            {
+                first[i] = random.Next(1, 11);
+                Write(first[i] + " ");
             }
             WriteLine();
 
-            int evenCount = 0;
-            int oddCount = 0;
-            int uniqueCount = 0;
-
-            for (int i = 0; i < array.Length; i++)
+            Write("Другий масив: ");
+            for (int i = 0; i < second.Length; i++)
             {
-                if (array[i] % 2 == 0)
-                {
-                    evenCount++;
-                }
-                else
-                {
-                    oddCount++;
-                }
+                second[i] = random.Next(1, 11);
+                Write(second[i] + " ");
+            }
+            WriteLine();
 
-                int occurrences = 0;
-                for (int j = 0; j < array.Length; j++)
+            int[] result = new int[Math.Min(m, n)];
+            int resultCount = 0;
+
+            for (int i = 0; i < first.Length; i++)
+            {
+                bool inSecond = false;
+                for (int j = 0; j < second.Length; j++)
                 {
-                    if (array[i] == array[j])
+                    if (first[i] == second[j])
                     {
-                        occurrences++;
+                        inSecond = true;
+                        break;
                     }
                 }
 
-                if (occurrences == 1)
+                bool alreadyAdded = false;
+                for (int k = 0; k < resultCount; k++)
                 {
-                    uniqueCount++;
+                    if (result[k] == first[i])
+                    {
+                        alreadyAdded = true;
+                        break;
+                    }
+                }
+
+                if (inSecond && !alreadyAdded)
+                {
+                    result[resultCount] = first[i];
+                    resultCount++;
                 }
             }
 
-            WriteLine($"Парних елементів: {evenCount}");
-            WriteLine($"Непарних елементів: {oddCount}");
-            WriteLine($"Унікальних елементів: {uniqueCount}");
+            Write("Спільні елементи: ");
+            if (resultCount == 0)
+            {
+                WriteLine("немає");
+            }
+            else
+            {
+                for (int i = 0; i < resultCount; i++)
+                {
+                    Write(result[i] + " ");
+                }
+                WriteLine();
+            }
         }
     }
 }
