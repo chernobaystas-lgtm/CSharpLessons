@@ -1,89 +1,112 @@
 ﻿using System;
-using System.Globalization;
 using System.Text;
 using static System.Console;
 
 namespace Lesson5_PracticeWork
 {
-    // Структура «День народження»
-    struct Birthday
+    // Структура «RGB колір»
+    struct RgbColor
     {
-        private DateTime date;
+        // Складові кольору, кожна від 0 до 255
+        private byte r;
+        private byte g;
+        private byte b;
 
-        private static readonly string[] DayNames =
+        // Конструктор. Якщо якась складова поза діапазоном 0-255, генерує виняток.
+        public RgbColor(int r, int g, int b)
         {
-            "неділя", "понеділок", "вівторок", "середа", "четвер", "п'ятниця", "субота"
-        };
-
-        // Встановлення дати дня народження.
-        // Повертає false, якщо дата неправильна або в майбутньому.
-        public bool SetDate(int day, int month, int year)
-        {
-            if (year < 1 || year > DateTime.Today.Year || month < 1 || month > 12)
+            if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
             {
-                return false;
+                throw new ArgumentException("Кожна складова кольору має бути від 0 до 255.");
             }
 
-            if (day < 1 || day > DateTime.DaysInMonth(year, month))
+            this.r = (byte)r;
+            this.g = (byte)g;
+            this.b = (byte)b;
+        }
+
+        public int GetR() { return r; }
+        public int GetG() { return g; }
+        public int GetB() { return b; }
+
+        // Переведення в HEX формат, наприклад #FF8000
+        public string ToHex()
+        {
+            return $"#{r:X2}{g:X2}{b:X2}";
+        }
+
+        // Переведення в HSL: h у градусах (0-360), s і l у відсотках (0-100)
+        public void ToHsl(out double h, out double s, out double l)
+        {
+            double rf = r / 255.0;
+            double gf = g / 255.0;
+            double bf = b / 255.0;
+
+            double max = Math.Max(rf, Math.Max(gf, bf));
+            double min = Math.Min(rf, Math.Min(gf, bf));
+            double delta = max - min;
+
+            l = (max + min) / 2;
+
+            if (delta == 0)
             {
-                return false;
+                // відтінок сірого: відтінку і насиченості немає
+                h = 0;
+                s = 0;
+            }
+            else
+            {
+                s = delta / (1 - Math.Abs(2 * l - 1));
+
+                if (max == rf)
+                {
+                    h = 60 * (((gf - bf) / delta) % 6);
+                }
+                else if (max == gf)
+                {
+                    h = 60 * ((bf - rf) / delta + 2);
+                }
+                else
+                {
+                    h = 60 * ((rf - gf) / delta + 4);
+                }
+
+                if (h < 0)
+                {
+                    h += 360;
+                }
             }
 
-            DateTime newDate = new DateTime(year, month, day);
+            s *= 100;
+            l *= 100;
+        }
 
-            if (newDate > DateTime.Today)
+        // Переведення в CMYK: усі значення у відсотках (0-100)
+        public void ToCmyk(out double c, out double m, out double y, out double k)
+        {
+            double rf = r / 255.0;
+            double gf = g / 255.0;
+            double bf = b / 255.0;
+
+            double max = Math.Max(rf, Math.Max(gf, bf));
+
+            double kf = 1 - max;
+
+            if (kf == 1)
             {
-                return false;
+                // чорний колір
+                c = 0;
+                m = 0;
+                y = 0;
+            }
+            else
+            {
+                c = (1 - rf - kf) / (1 - kf) * 100;
+                m = (1 - gf - kf) / (1 - kf) * 100;
+                y = (1 - bf - kf) / (1 - kf) * 100;
             }
 
-            date = newDate;
-            return true;
-        }
-
-        public DateTime GetDate()
-        {
-            return date;
-        }
-
-        // День тижня, коли народилася людина
-        public string GetDayOfWeekOfBirth()
-        {
-            return DayNames[(int)date.DayOfWeek];
-        }
-
-        // День тижня, на який припадає день народження в зазначеному році
-        public string GetDayOfWeekInYear(int year)
-        {
-            return DayNames[(int)BirthdayInYear(year).DayOfWeek];
-        }
-
-        // Кількість днів, що залишилися до наступного дня народження.
-        // Якщо день народження сьогодні, повертає 0.
-        public int DaysUntilNextBirthday()
-        {
-            DateTime today = DateTime.Today;
-            DateTime next = BirthdayInYear(today.Year);
-
-            if (next < today)
-            {
-                next = BirthdayInYear(today.Year + 1);
-            }
-
-            return (next - today).Days;
-        }
-
-        // Дата дня народження в заданому році.
-        // Для 29 лютого в невисокосному році беремо 28 лютого.
-        private DateTime BirthdayInYear(int year)
-        {
-            int day = date.Day;
-
-            if (date.Month == 2 && date.Day == 29 && !DateTime.IsLeapYear(year))
-            {
-                day = 28;
-            }
-
-            return new DateTime(year, date.Month, day);
+            k = kf * 100;
         }
     }
 
@@ -94,37 +117,45 @@ namespace Lesson5_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: структура «День народження»
-            Write("Введіть дату народження (дд.мм.рррр): ");
-
-            if (!DateTime.TryParseExact(ReadLine(), "dd.MM.yyyy", CultureInfo.InvariantCulture,
-                                        DateTimeStyles.None, out DateTime input))
+            // Завдання 2: структура «RGB колір»
+            Write("Введіть R (0-255): ");
+            if (!int.TryParse(ReadLine(), out int r))
             {
-                WriteLine("Помилка: невірний формат дати! Приклад: 01.04.1990");
+                WriteLine("Помилка: потрібно ввести ціле число!");
                 return;
             }
 
-            Birthday birthday = new Birthday();
-
-            if (!birthday.SetDate(input.Day, input.Month, input.Year))
+            Write("Введіть G (0-255): ");
+            if (!int.TryParse(ReadLine(), out int g))
             {
-                WriteLine("Помилка: дата не може бути в майбутньому!");
+                WriteLine("Помилка: потрібно ввести ціле число!");
                 return;
             }
 
-            Write("Введіть рік, у якому цікавить день народження: ");
-
-            if (!int.TryParse(ReadLine(), out int year) || year < 1 || year > 9999)
+            Write("Введіть B (0-255): ");
+            if (!int.TryParse(ReadLine(), out int b))
             {
-                WriteLine("Помилка: потрібно ввести рік від 1 до 9999!");
+                WriteLine("Помилка: потрібно ввести ціле число!");
                 return;
             }
 
-            WriteLine();
-            WriteLine($"Дата народження: {birthday.GetDate():dd.MM.yyyy}");
-            WriteLine($"Народилася людина в такий день тижня: {birthday.GetDayOfWeekOfBirth()}");
-            WriteLine($"У {year} році день народження буде в такий день тижня: {birthday.GetDayOfWeekInYear(year)}");
-            WriteLine($"Днів до наступного дня народження: {birthday.DaysUntilNextBirthday()}");
+            try
+            {
+                RgbColor color = new RgbColor(r, g, b);
+
+                color.ToHsl(out double h, out double s, out double l);
+                color.ToCmyk(out double c, out double m, out double y, out double k);
+
+                WriteLine();
+                WriteLine($"RGB:  ({color.GetR()}, {color.GetG()}, {color.GetB()})");
+                WriteLine($"HEX:  {color.ToHex()}");
+                WriteLine($"HSL:  ({h:F1}°, {s:F1}%, {l:F1}%)");
+                WriteLine($"CMYK: ({c:F1}%, {m:F1}%, {y:F1}%, {k:F1}%)");
+            }
+            catch (ArgumentException ex)
+            {
+                WriteLine($"Помилка: {ex.Message}");
+            }
         }
     }
 }
