@@ -6,111 +6,50 @@ namespace Lesson4_Homework
 {
     class Program
     {
-        // Цифри для систем числення до 16 включно
-        const string Digits = "0123456789ABCDEF";
-
         static void Main(string[] args)
         {
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: калькулятор для переведення числа з однієї системи числення в іншу
-            WriteLine("Оберіть напрямок конвертації:");
-            WriteLine("1 - з десяткової в двійкову");
-            WriteLine("2 - з двійкової в десяткову");
-            WriteLine("3 - з десяткової у вісімкову");
-            WriteLine("4 - з вісімкової в десяткову");
-            WriteLine("5 - з десяткової в шістнадцяткову");
-            WriteLine("6 - з шістнадцяткової в десяткову");
-            Write("Ваш вибір: ");
-            string choice = ReadLine()!;
-
-            int fromBase;
-            int toBase;
-
-            switch (choice)
-            {
-                case "1": fromBase = 10; toBase = 2; break;
-                case "2": fromBase = 2; toBase = 10; break;
-                case "3": fromBase = 10; toBase = 8; break;
-                case "4": fromBase = 8; toBase = 10; break;
-                case "5": fromBase = 10; toBase = 16; break;
-                case "6": fromBase = 16; toBase = 10; break;
-                default:
-                    WriteLine("Помилка: потрібно ввести число від 1 до 6!");
-                    return;
-            }
-
-            Write($"Введіть число (система числення {fromBase}): ");
-            string input = ReadLine()!.Trim();
+            // Завдання 7: обчислення виразу з цілих чисел і оператора * (наприклад, 3*2*1*4)
+            Write("Введіть вираз (наприклад, 3*2*1*4): ");
+            string input = ReadLine()!.Replace(" ", "");
 
             try
             {
-                // спочатку переводимо в десяткову (тип int), потім у потрібну систему
-                int value = FromBase(input, fromBase);
-                string result = ToBase(value, toBase);
+                int result = Multiply(input);
 
-                WriteLine($"Результат: {result} (система числення {toBase})");
+                WriteLine($"Результат: {result}");
             }
             catch (FormatException)
             {
-                WriteLine($"Помилка: у числі є символи, яких не може бути в системі числення {fromBase}!");
+                WriteLine("Помилка: невірний вираз! Дозволені тільки цілі числа та оператор *");
             }
             catch (OverflowException)
             {
-                WriteLine("Помилка: число виходить за межі діапазону типу int!");
-            }
-            catch (ArgumentException)
-            {
-                WriteLine("Помилка: введено порожній рядок!");
+                WriteLine("Помилка: число або результат виходить за межі діапазону типу int!");
             }
         }
 
-        // Переводить число з десяткової системи в систему з основою toBase
-        static string ToBase(int value, int toBase)
+        // Обчислює добуток чисел у виразі виду "число*число*число".
+        // Кидає виняток, якщо вираз неправильний:
+        // FormatException - порожній вираз, зайвий або недопустимий символ, пропущене число,
+        // OverflowException - число або добуток виходить за межі int.
+        static int Multiply(string expression)
         {
-            if (value == 0)
+            // розбиваємо вираз на числа по символу *
+            string[] parts = expression.Split('*');
+
+            int result = 1;
+
+            for (int i = 0; i < parts.Length; i++)
             {
-                return "0";
-            }
+                // int.Parse сам кидає FormatException (порожня частина, літери, інші оператори)
+                // та OverflowException (занадто велике число)
+                int value = int.Parse(parts[i]);
 
-            string result = "";
-
-            while (value > 0)
-            {
-                // остача від ділення це наступна цифра, додаємо її на початок
-                result = Digits[value % toBase] + result;
-                value /= toBase;
-            }
-
-            return result;
-        }
-
-        // Переводить рядок із системи з основою fromBase в десяткове число (int).
-        // Кидає виняток, якщо ввід неправильний:
-        // ArgumentException - порожній рядок,
-        // FormatException - символ, якого не може бути в цій системі,
-        // OverflowException - число виходить за межі int.
-        static int FromBase(string number, int fromBase)
-        {
-            if (string.IsNullOrEmpty(number))
-            {
-                throw new ArgumentException("Порожній рядок");
-            }
-
-            int result = 0;
-
-            for (int i = 0; i < number.Length; i++)
-            {
-                int digit = Digits.IndexOf(char.ToUpper(number[i]));
-
-                if (digit == -1 || digit >= fromBase)
-                {
-                    throw new FormatException();
-                }
-
-                // checked сам кидає OverflowException, якщо число вийшло за межі int
-                result = checked(result * fromBase + digit);
+                // checked кидає OverflowException, якщо добуток вийшов за межі int
+                result = checked(result * value);
             }
 
             return result;
