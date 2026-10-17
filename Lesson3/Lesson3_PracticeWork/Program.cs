@@ -11,45 +11,60 @@ namespace Lesson3_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: метод, що повертає добуток чисел у вказаному діапазоні
-            Write("Введіть початок діапазону: ");
-            if (!int.TryParse(ReadLine(), out int from))
+            // Завдання 5: метод об'єднує масив цілих чисел (перший параметр)
+            // і послідовність цілих чисел, що йдуть після масиву
+            Random random = new Random();
+            int[] array = new int[5];
+
+            for (int i = 0; i < array.Length; i++)
             {
-                WriteLine("Помилка: потрібно ввести ціле число!");
-                return;
+                array[i] = random.Next(1, 10);
             }
 
-            Write("Введіть кінець діапазону: ");
-            if (!int.TryParse(ReadLine(), out int to))
-            {
-                WriteLine("Помилка: потрібно ввести ціле число!");
-                return;
-            }
+            PrintArray("Початковий масив:", array);
 
-            long result = Product(from, to);
+            // після масиву можна передати будь-яку кількість чисел
+            int[] result1 = Merge(array, 100, 200, 300);
+            PrintArray("Merge(array, 100, 200, 300):", result1);
 
-            WriteLine($"Добуток чисел від {from} до {to}: {result}");
+            int[] result2 = Merge(array, 7);
+            PrintArray("Merge(array, 7):", result2);
+
+            // без додаткових чисел повертається копія масиву
+            int[] result3 = Merge(array);
+            PrintArray("Merge(array):", result3);
         }
 
-        // Повертає добуток усіх цілих чисел від from до to включно.
-        // Якщо межі вказані в неправильному порядку, міняє їх місцями.
-        static long Product(int from, int to)
+        // Перший параметр це масив, після нього йде послідовність чисел (params).
+        // Повертає новий масив: спочатку елементи масиву, потім числа послідовності.
+        static int[] Merge(int[] array, params int[] numbers)
         {
-            if (from > to)
+            int[] result = new int[array.Length + numbers.Length];
+
+            for (int i = 0; i < array.Length; i++)
             {
-                int temp = from;
-                from = to;
-                to = temp;
+                result[i] = array[i];
             }
 
-            long product = 1;
-
-            for (int i = from; i <= to; i++)
+            for (int i = 0; i < numbers.Length; i++)
             {
-                product *= i;
+                result[array.Length + i] = numbers[i];
             }
 
-            return product;
+            return result;
+        }
+
+        static void PrintArray(string title, int[] array)
+        {
+            WriteLine(title);
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                Write(array[i] + " ");
+            }
+
+            WriteLine();
+            WriteLine();
         }
     }
 }
