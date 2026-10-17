@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.Text;
 using static System.Console;
 
@@ -12,54 +11,58 @@ class Program
         OutputEncoding = Encoding.UTF8;
         InputEncoding = Encoding.UTF8;
 
-        // Завдання 1: клас «Співробітник» із заробітною платою та перевантаженням операторів
+        // Завдання 2: клас «Місто» з індексатором і перевантаженням операторів
         try
         {
-            Employee vaska = new Employee();
-            vaska.Input();
+            City city = new City();
+            city.Input();
 
-            int bonus = ReadInt("Введіть премію: ");
-            vaska = vaska + bonus;
+            int increase = ReadInt("Введіть, на скільки збільшити кількість жителів: ");
+            city = city + increase;
 
-            int cut = ReadInt("Введіть, на скільки зменшити зарплату: ");
-            vaska = vaska - cut;
-
-            WriteLine();
-            WriteLine("Дані співробітника:");
-            vaska.Show();
-
-            Employee boss = new Employee("Іван Іванович", new DateTime(1985, 5, 12),
-                "+380991234567", "boss@company.com", "Директор", "Управління", 80000);
+            int decrease = ReadInt("Введіть, на скільки зменшити кількість жителів: ");
+            city = city - decrease;
 
             WriteLine();
-            WriteLine($"Зарплата директора: {boss.Salary}");
+            WriteLine("Дані міста:");
+            city.Show();
 
-            if (vaska > boss)
+            // індексатор: назва району за індексом
+            int index = ReadInt($"Введіть індекс району (від 0 до {city.DistrictCount - 1}): ");
+            WriteLine($"Район з індексом {index}: {city[index]}");
+
+            City other = new City("Каунас", "Литва", 290000, "+370 37",
+                new string[] { "Центр", "Жалякальніс" });
+
+            WriteLine();
+            WriteLine($"Кількість жителів в іншому місті ({other.Name}): {other.Population}");
+
+            if (city > other)
             {
-                WriteLine("Васька заробляє більше за директора");
+                WriteLine($"У місті {city.Name} жителів більше, ніж у {other.Name}");
             }
-            else if (vaska < boss)
+            else if (city < other)
             {
-                WriteLine("Васька заробляє менше за директора");
+                WriteLine($"У місті {city.Name} жителів менше, ніж у {other.Name}");
             }
 
-            if (vaska == boss)
+            if (city == other)
             {
-                WriteLine("Зарплати однакові");
+                WriteLine("Кількість жителів однакова");
             }
 
-            if (vaska != boss)
+            if (city != other)
             {
-                WriteLine("Зарплати різні");
+                WriteLine("Кількість жителів різна");
             }
 
-            if (vaska.Equals(boss))
+            if (city.Equals(other))
             {
-                WriteLine("Equals підтверджує рівність зарплат");
+                WriteLine("Equals підтверджує рівність кількості жителів");
             }
             else
             {
-                WriteLine("Equals: зарплати не рівні");
+                WriteLine("Equals: кількість жителів не рівна");
             }
         }
         catch (ArgumentException ex)
@@ -85,150 +88,136 @@ class Program
     }
 }
 
-public class Employee
+public class City
 {
-    private string fullName = "";
-    private DateTime birthDate;
-    private string phone = "";
-    private string email = "";
-    private string position = "";
-    private string duties = "";
-    private int salary;
+    private string name = "";
+    private string country = "";
+    private int population;
+    private string phoneCode = "";
+    private string[] districts = new string[0];
 
-    public Employee()
+    public City()
     {
     }
 
-    public Employee(string fullName, DateTime birthDate, string phone,
-                    string email, string position, string duties, int salary)
+    public City(string name, string country, int population, string phoneCode, string[] districts)
     {
-        FullName = fullName;
-        BirthDate = birthDate;
-        Phone = phone;
-        Email = email;
-        Position = position;
-        Duties = duties;
-        Salary = salary;
+        Name = name;
+        Country = country;
+        Population = population;
+        PhoneCode = phoneCode;
+
+        // копіюємо масив, щоб місто не залежало від переданого масиву
+        this.districts = new string[districts.Length];
+
+        for (int i = 0; i < districts.Length; i++)
+        {
+            this.districts[i] = districts[i];
+        }
     }
 
-    public string FullName
+    public string Name
     {
-        get { return fullName; }
+        get { return name; }
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("ПІБ не може бути порожнім");
-            fullName = value.Trim();
+                throw new ArgumentException("Назва міста не може бути порожньою");
+            name = value.Trim();
         }
     }
 
-    public DateTime BirthDate
+    public string Country
     {
-        get { return birthDate; }
-        set
-        {
-            if (value > DateTime.Today || value.Year < 1900)
-                throw new ArgumentException("Некоректна дата народження");
-            birthDate = value;
-        }
-    }
-
-    public string Phone
-    {
-        get { return phone; }
-        set
-        {
-            string cleaned = (value ?? "").Replace(" ", "").Replace("-", "")
-                                          .Replace("(", "").Replace(")", "");
-            string digits = cleaned.StartsWith("+") ? cleaned.Substring(1) : cleaned;
-
-            if (digits.Length < 10 || digits.Length > 15 || !IsDigits(digits))
-                throw new ArgumentException("Телефон має містити від 10 до 15 цифр");
-
-            phone = cleaned;
-        }
-    }
-
-    public string Email
-    {
-        get { return email; }
-        set
-        {
-            value = (value ?? "").Trim();
-            int at = value.IndexOf('@');
-
-            if (at <= 0 || at != value.LastIndexOf('@') || value.Contains(' ') ||
-                value.IndexOf('.', at) <= at + 1 || value.EndsWith("."))
-                throw new ArgumentException("Невірний формат email, приклад: name@company.com");
-
-            email = value;
-        }
-    }
-
-    public string Position
-    {
-        get { return position; }
+        get { return country; }
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Посада не може бути порожньою");
-            position = value.Trim();
+                throw new ArgumentException("Назва країни не може бути порожньою");
+            country = value.Trim();
         }
     }
 
-    public string Duties
+    // Кількість жителів. Усі оператори та Show працюють саме з цим полем
+    public int Population
     {
-        get { return duties; }
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Опис обов'язків не може бути порожнім");
-            duties = value.Trim();
-        }
-    }
-
-    // Заробітна плата. Усі оператори та Show працюють саме з цим полем
-    public int Salary
-    {
-        get { return salary; }
+        get { return population; }
         set
         {
             if (value < 0)
-                throw new ArgumentException("Зарплата не може бути від'ємною");
-            salary = value;
+                throw new ArgumentException("Кількість жителів не може бути від'ємною");
+            population = value;
+        }
+    }
+
+    public string PhoneCode
+    {
+        get { return phoneCode; }
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Телефонний код не може бути порожнім");
+            phoneCode = value.Trim();
+        }
+    }
+
+    // Кількість районів міста (тільки для читання)
+    public int DistrictCount
+    {
+        get { return districts.Length; }
+    }
+
+    // Індексатор: назва району міста за індексом (з нуля)
+    public string this[int index]
+    {
+        get
+        {
+            if (index < 0 || index >= districts.Length)
+                throw new ArgumentOutOfRangeException(nameof(index), "Району з таким індексом немає");
+            return districts[index];
         }
     }
 
     public void Input()
     {
-        FullName = Ask("ПІБ: ");
+        Name = Ask("Назва міста: ");
+        Country = Ask("Назва країни: ");
 
         while (true)
         {
-            string dateInput = Ask("Дата народження (дд.мм.рррр): ");
-            if (DateTime.TryParseExact(dateInput, "dd.MM.yyyy", CultureInfo.InvariantCulture,
-                                       DateTimeStyles.None, out DateTime date))
+            string populationInput = Ask("Кількість жителів: ");
+            if (int.TryParse(populationInput, out int value) && value >= 0)
             {
-                BirthDate = date;
-                break;
-            }
-            WriteLine("Невірний формат дати, приклад: 25.03.1990. Спробуйте ще раз.");
-        }
-
-        Phone = Ask("Телефон: ");
-        Email = Ask("Робочий email: ");
-        Position = Ask("Посада: ");
-        Duties = Ask("Опис службових обов'язків: ");
-
-        while (true)
-        {
-            string salaryInput = Ask("Зарплата: ");
-            if (int.TryParse(salaryInput, out int value) && value >= 0)
-            {
-                Salary = value;
+                Population = value;
                 break;
             }
             WriteLine("Потрібно ввести ціле число не менше нуля. Спробуйте ще раз.");
+        }
+
+        PhoneCode = Ask("Телефонний код міста: ");
+
+        int count;
+
+        while (true)
+        {
+            string countInput = Ask("Кількість районів: ");
+            if (int.TryParse(countInput, out count) && count > 0)
+            {
+                break;
+            }
+            WriteLine("Потрібно ввести ціле число більше нуля. Спробуйте ще раз.");
+        }
+
+        districts = new string[count];
+
+        for (int i = 0; i < districts.Length; i++)
+        {
+            string district = Ask($"Назва району {i}: ");
+
+            if (string.IsNullOrWhiteSpace(district))
+                throw new ArgumentException("Назва району не може бути порожньою");
+
+            districts[i] = district.Trim();
         }
     }
 
@@ -240,96 +229,78 @@ public class Employee
 
     public void Show()
     {
-        WriteLine($"ПІБ: {fullName}");
-        WriteLine($"Дата народження: {birthDate:dd.MM.yyyy}");
-        WriteLine($"Телефон: {phone}");
-        WriteLine($"Email: {email}");
-        WriteLine($"Посада: {position}");
-        WriteLine($"Обов'язки: {duties}");
-        WriteLine($"Зарплата: {salary}");
-    }
+        WriteLine($"Місто: {name}");
+        WriteLine($"Країна: {country}");
+        WriteLine($"Кількість жителів: {population}");
+        WriteLine($"Телефонний код: {phoneCode}");
+        WriteLine("Райони:");
 
-    private static bool IsDigits(string s)
-    {
-        foreach (char c in s)
+        for (int i = 0; i < districts.Length; i++)
         {
-            if (c < '0' || c > '9') return false;
+            WriteLine($"  {i}. {districts[i]}");
         }
-        return true;
     }
 
     public override string ToString()
     {
-        return $"ПІБ: {fullName}\n" +
-               $"Дата народження: {birthDate:dd.MM.yyyy}\n" +
-               $"Телефон: {phone}\n" +
-               $"Email: {email}\n" +
-               $"Посада: {position}\n" +
-               $"Обов'язки: {duties}\n" +
-               $"Зарплата: {salary}";
+        return $"{name} ({country}), жителів: {population}, код: {phoneCode}, районів: {districts.Length}";
     }
 
-    // Збільшення зарплати на вказану кількість. Повертає нового співробітника
-    public static Employee operator +(Employee employee, int amount)
+    // Збільшення кількості жителів на вказану кількість. Повертає нове місто
+    public static City operator +(City city, int amount)
     {
         if (amount < 0)
-            throw new ArgumentException("Сума не може бути від'ємною");
+            throw new ArgumentException("Кількість не може бути від'ємною");
 
-        return employee.WithSalary(employee.salary + amount);
+        return city.WithPopulation(city.population + amount);
     }
 
-    // Зменшення зарплати на вказану кількість. Повертає нового співробітника
-    public static Employee operator -(Employee employee, int amount)
+    // Зменшення кількості жителів на вказану кількість. Повертає нове місто
+    public static City operator -(City city, int amount)
     {
         if (amount < 0)
-            throw new ArgumentException("Сума не може бути від'ємною");
+            throw new ArgumentException("Кількість не може бути від'ємною");
 
-        if (amount > employee.salary)
-            throw new ArgumentException("Зарплата не може стати від'ємною");
+        if (amount > city.population)
+            throw new ArgumentException("Кількість жителів не може стати від'ємною");
 
-        return employee.WithSalary(employee.salary - amount);
+        return city.WithPopulation(city.population - amount);
     }
 
-    // Перевірка на рівність зарплат
-    public static bool operator ==(Employee? employee1, Employee? employee2)
+    // Перевірка на рівність двох міст за кількістю жителів
+    public static bool operator ==(City? city1, City? city2)
     {
-        if (ReferenceEquals(employee1, employee2)) return true;
-        if (employee1 is null || employee2 is null) return false;
+        if (ReferenceEquals(city1, city2)) return true;
+        if (city1 is null || city2 is null) return false;
 
-        return employee1.salary == employee2.salary;
+        return city1.population == city2.population;
     }
 
-    public static bool operator !=(Employee? employee1, Employee? employee2)
+    public static bool operator !=(City? city1, City? city2)
     {
-        return !(employee1 == employee2);
+        return !(city1 == city2);
     }
 
-    // Перевірка на більшу зарплату
-    public static bool operator >(Employee employee1, Employee employee2)
+    // Перевірка на більшу кількість жителів
+    public static bool operator >(City city1, City city2)
     {
-        return employee1.salary > employee2.salary;
+        return city1.population > city2.population;
     }
 
-    // Перевірка на меншу зарплату
-    public static bool operator <(Employee employee1, Employee employee2)
+    // Перевірка на меншу кількість жителів
+    public static bool operator <(City city1, City city2)
     {
-        return employee1.salary < employee2.salary;
+        return city1.population < city2.population;
     }
 
-    // Equals узгоджений з ==: порівнює зарплати
+    // Equals узгоджений з ==: порівнює кількість жителів
     public override bool Equals(object? obj)
     {
-        return obj is Employee other && salary == other.salary;
+        return obj is City other && population == other.population;
     }
-
-    public override int GetHashCode()
+    // Копія міста з іншою кількістю жителів (оригінал не змінюється)
+    private City WithPopulation(int newPopulation)
     {
-        return salary.GetHashCode();
-    }
-
-    // Копія співробітника з іншою зарплатою (оригінал не змінюється)
-    private Employee WithSalary(int newSalary)
-    {
-        return new Employee(fullName, birthDate, phone, email, position, duties, newSalary);
+        return new City(name, country, newPopulation, phoneCode, districts);
     }
 }
