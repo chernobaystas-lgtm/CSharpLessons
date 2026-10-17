@@ -11,45 +11,67 @@ namespace Lesson3_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: метод, що повертає добуток чисел у вказаному діапазоні
-            Write("Введіть початок діапазону: ");
-            if (!int.TryParse(ReadLine(), out int from))
+            // Завдання 3: метод знаходить суму елементів кожного рядка ступінчатого масиву
+            // і додає ці суми як останній рядок масиву
+            Random random = new Random();
+            int rows = 4;
+            int[][] array = new int[rows][];
+
+            // кожен рядок має випадкову довжину від 2 до 5
+            for (int i = 0; i < rows; i++)
             {
-                WriteLine("Помилка: потрібно ввести ціле число!");
-                return;
+                array[i] = new int[random.Next(2, 6)];
+
+                for (int j = 0; j < array[i].Length; j++)
+                {
+                    array[i][j] = random.Next(1, 10);
+                }
             }
 
-            Write("Введіть кінець діапазону: ");
-            if (!int.TryParse(ReadLine(), out int to))
-            {
-                WriteLine("Помилка: потрібно ввести ціле число!");
-                return;
-            }
+            PrintJagged("Масив до:", array);
 
-            long result = Product(from, to);
+            int[][] result = AddRowSums(array);
 
-            WriteLine($"Добуток чисел від {from} до {to}: {result}");
+            PrintJagged("Масив після (останній рядок це суми рядків):", result);
         }
 
-        // Повертає добуток усіх цілих чисел від from до to включно.
-        // Якщо межі вказані в неправильному порядку, міняє їх місцями.
-        static long Product(int from, int to)
+        // Повертає новий ступінчатий масив: усі старі рядки + останній рядок із сумами
+        static int[][] AddRowSums(int[][] array)
         {
-            if (from > to)
+            int[][] result = new int[array.Length + 1][];
+            int[] sums = new int[array.Length];
+
+            for (int i = 0; i < array.Length; i++)
             {
-                int temp = from;
-                from = to;
-                to = temp;
+                result[i] = array[i];
+
+                int sum = 0;
+                for (int j = 0; j < array[i].Length; j++)
+                {
+                    sum += array[i][j];
+                }
+
+                sums[i] = sum;
             }
 
-            long product = 1;
+            result[array.Length] = sums;
 
-            for (int i = from; i <= to; i++)
+            return result;
+        }
+
+        static void PrintJagged(string title, int[][] array)
+        {
+            WriteLine();
+            WriteLine(title);
+
+            for (int i = 0; i < array.Length; i++)
             {
-                product *= i;
+                for (int j = 0; j < array[i].Length; j++)
+                {
+                    Write($"{array[i][j],4}");
+                }
+                WriteLine();
             }
-
-            return product;
         }
     }
 }
