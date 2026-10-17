@@ -11,51 +11,41 @@ namespace Lesson2_PracticeWork
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
 
-            // Завдання 1: кількість парних, непарних та унікальних елементів масиву
-            Random random = new Random();
-            int[] array = new int[10];
+            // Завдання 3: кількість повторень послідовності з трьох чисел в масиві
+            int[] array = { 7, 6, 5, 3, 4, 7, 6, 5, 8, 7, 6, 5 };
 
             Write("Масив: ");
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = random.Next(1, 21);
                 Write(array[i] + " ");
             }
             WriteLine();
 
-            int evenCount = 0;
-            int oddCount = 0;
-            int uniqueCount = 0;
+            int[] sequence = new int[3];
 
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < sequence.Length; i++)
             {
-                if (array[i] % 2 == 0)
+                Write($"Введіть число {i + 1}: ");
+                if (!int.TryParse(ReadLine(), out sequence[i]))
                 {
-                    evenCount++;
-                }
-                else
-                {
-                    oddCount++;
-                }
-
-                int occurrences = 0;
-                for (int j = 0; j < array.Length; j++)
-                {
-                    if (array[i] == array[j])
-                    {
-                        occurrences++;
-                    }
-                }
-
-                if (occurrences == 1)
-                {
-                    uniqueCount++;
+                    WriteLine("Помилка: потрібно ввести ціле число!");
+                    return;
                 }
             }
 
-            WriteLine($"Парних елементів: {evenCount}");
-            WriteLine($"Непарних елементів: {oddCount}");
-            WriteLine($"Унікальних елементів: {uniqueCount}");
+            int count = 0;
+
+            for (int i = 0; i <= array.Length - sequence.Length; i++)
+            {
+                if (array[i] == sequence[0] &&
+                    array[i + 1] == sequence[1] &&
+                    array[i + 2] == sequence[2])
+                {
+                    count++;
+                }
+            }
+
+            WriteLine($"Кількість повторень послідовності: {count}");
         }
     }
 }
