@@ -6,39 +6,27 @@ namespace Lesson7_PracticeWork;
 
 class Program
 {
-    static void Main(string[] args)
+        static void Main(string[] args)
     {
-        OutputEncoding = Encoding.UTF8;
-        InputEncoding = Encoding.UTF8;
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        Product[] products = new Product[5];
-    
-    products[0] = new Product("Хліб", 25.50, "Сільпо");
-    products[1] = new Toy("Конструктор LEGO", 1200.00, "Україна", "6"); 
-    products[2] = new Toy("М'яка ведмедик", 450.00, "", "2");
-    products[3] = new Toy("Настільна гра", 350.00, "Україна", "8");
-    products[4] = new Product("Молоко", 40.00, "АТБ");
-
-    Console.WriteLine("=== 1. ТОВАРИ ВІД УКРАЇНСЬКИХ ВИРОБНИКІВ ===");
-    foreach (var item in products)
-    {
-        if (item is Toy toy && toy.FactoryLocation.Equals("Україна", StringComparison.OrdinalIgnoreCase))
+        Figure[] figures = new Figure[]
         {
-            toy.DisplayInfo();
-            Console.WriteLine(new string('-', 30));
-        }
-    }
+            new Rectangle(5, 4),           
+            new Circle(3),                
+            new RightTriangle(6, 4),        
+            new Trapezoid(3, 7, 5)         
+        };
 
-    Console.WriteLine("\n=== 2. ІГРАШКИ ДЛЯ ДІТЕЙ СТАРШЕ 4 РОКІВ ===");
-    foreach (var item in products)
-    {
-        if (item is Toy toy && int.TryParse(toy.AgeGroup, out int age) && age > 4)
+        Console.WriteLine("=== Результаты подсчета площадей ===");
+        
+        // Полиморфизм в действии: вызываем GetArea для каждого объекта
+        foreach (var fig in figures)
         {
-            toy.DisplayInfo();
-            Console.WriteLine(new string('-', 30));
+            fig.DisplayInfo();
+            Console.WriteLine(new string('-', 40));
         }
-    }
-    
-    Console.ReadLine();
+
+        Console.ReadLine();
     }
 }
