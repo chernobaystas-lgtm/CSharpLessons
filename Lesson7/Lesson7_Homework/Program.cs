@@ -3,32 +3,31 @@
 
 class Program
 {
- static void Main(string[] args)
+  static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        Device[] devices = new Device[]
+        Course[] courses = new Course[]
         {
-            new Teapot("Електричний Чайник Tefal", "Швидко кип'ятить воду", 1500.00, "Білий", DeviceStatus.New, 1.7),
-            new Microwave("Мікрохвильовка Samsung", "Має режим грилю", 4500.00, "Чорний", DeviceStatus.Used, 800),
-            new Car("Спорткар Porsche", "Швидкісний автомобіль", 3200000.00, "Червоний", DeviceStatus.Refurbished, "Бензин"),
-            new Steamboat("Вантажний Пароплав", "Перевозить контейнери", 85000000.00, "Сірий", DeviceStatus.Broken, 150.5)
+            new Course("Вступ до програмування", 40),
+            new OnlineCourse("C# Базовий", 60, "IT Step"),
+            new OnlineCourse("Проектування БД", 45, "Coursera")
         };
 
-        Console.WriteLine("=== ДЕМОНСТРАЦІЯ РОБОТИ ОНОВЛЕНИХ ПРИСТРОЇВ ===");
-        foreach (Device dev in devices)
+        Console.WriteLine("=== УСІ КУРСИ, ЩО Є У НАЯВНОСТІ ===");
+        foreach (Course course in courses)
         {
-            dev.Show();       
-            dev.Desc();       
-            dev.Sound();      
-            Console.WriteLine($"ToString: {dev.ToString()}"); 
-            Console.WriteLine(new string('-', 60));
+            Console.WriteLine(course.ToString());
         }
 
-        Console.WriteLine("\n=== ПЕРЕВІРКА МЕТОДУ EQUALS ===");
-        Car car1 = new Car("Tesla Model S", "Електрокар", 2500000.00, "Білий", DeviceStatus.New, "Електрика");
-        Car car2 = new Car("Tesla Model S", "Електрокар", 2500000.00, "Білий", DeviceStatus.New, "Електрика");
-        Console.WriteLine($"Чи однакові автомобілі car1 та car2? Відповідь: {car1.Equals(car2)}");
+        Console.WriteLine("\n=== ЛИШЕ КУРСИ ONLINECOURSE ===");
+        foreach (Course course in courses)
+        {
+            if (course is OnlineCourse)
+            {
+                Console.WriteLine(course.ToString());
+            }
+        }
 
         Console.ReadLine();
     }
