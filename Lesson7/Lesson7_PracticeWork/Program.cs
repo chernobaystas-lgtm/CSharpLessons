@@ -15,7 +15,7 @@ class Program
     
     products[0] = new Product("Хліб", 25.50, "Сільпо");
     products[1] = new Toy("Конструктор LEGO", 1200.00, "Україна", "6"); 
-    products[2] = new Toy("М'яка ведмедик", 450.00, "Україна", "2");
+    products[2] = new Toy("М'яка ведмедик", 450.00, "", "2");
     products[3] = new Toy("Настільна гра", 350.00, "Україна", "8");
     products[4] = new Product("Молоко", 40.00, "АТБ");
 
