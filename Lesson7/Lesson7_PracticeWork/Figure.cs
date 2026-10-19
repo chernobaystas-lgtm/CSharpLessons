@@ -1,92 +1,141 @@
-using System;
-
-// 1. Абстрактный базовый класс
 abstract class Figure
 {
-    public string Name { get; set; }
+    protected double SideA;
+    protected double SideB;
+    protected double SideC; 
+    protected double RadiusX; 
+    protected double RadiusY; 
 
-    protected Figure(string name)
-    {
-        Name = name;
-    }
-
-    // Абстрактный метод для подсчета площади
     public abstract double GetArea();
-
-    public virtual void DisplayInfo()
-    {
-        Console.WriteLine($"Фигура: {Name}, Площадь: {GetArea():F2}");
-    }
+    public abstract double GetPerimeter();
 }
 
-// 2. Класс Прямоугольник
 class Rectangle : Figure
 {
-    private double _width;
-    private double _height;
-
-    public Rectangle(double width, double height) : base("Прямоугольник")
+    public Rectangle(double width, double height)
     {
-        _width = width;
-        _height = height;
+        SideA = width;
+        SideB = height;
     }
 
-    public override double GetArea()
-    {
-        return _width * _height;
-    }
-}
+    public override double GetArea() => SideA * SideB;
 
-// 3. Класс Круг
-class Circle : Figure
-{
-    private double _radius;
+    public override double GetPerimeter() => 2 * (SideA + SideB);
 
-    public Circle(double radius) : base("Круг")
+    public override string ToString()
     {
-        _radius = radius;
+        return $"Rectangle [Width={SideA}, Height={SideB}, Area={GetArea():F2}, Perimeter={GetPerimeter():F2}]";
     }
 
-    public override double GetArea()
+    public override bool Equals(object obj)
     {
-        return Math.PI * Math.Pow(_radius, 2);
-    }
-}
-
-// 4. Класс Прямоугольный треугольник
-class RightTriangle : Figure
-{
-    private double _baseSide;
-    private double _height;
-
-    public RightTriangle(double baseSide, double height) : base("Прямоугольный треугольник")
-    {
-        _baseSide = baseSide;
-        _height = height;
+        if (obj is Rectangle other)
+        {
+            return this.SideA == other.SideA && this.SideB == other.SideB;
+        }
+        return false;
     }
 
-    public override double GetArea()
+    public override int GetHashCode()
     {
-        return 0.5 * _baseSide * _height;
+        return HashCode.Combine(SideA, SideB);
     }
 }
 
-// 5. Класс Трапеция
-class Trapezoid : Figure
+class Ellipse : Figure
 {
-    private double _a; // Верхнее основание
-    private double _b; // Нижнее основание
-    private double _height;
-
-    public Trapezoid(double a, double b, double height) : base("Трапеция")
+    public Ellipse(double radiusX, double radiusY)
     {
-        _a = a;
-        _b = b;
-        _height = height;
+        RadiusX = radiusX;
+        RadiusY = radiusY;
+    }
+
+    public override double GetArea() => Math.PI * RadiusX * RadiusY;
+
+    public override double GetPerimeter()
+    {
+        return Math.PI * (3 * (RadiusX + RadiusY) - Math.Sqrt((3 * RadiusX + RadiusY) * (RadiusX + 3 * RadiusY)));
+    }
+
+    public override string ToString()
+    {
+        return $"Ellipse [RadiusX={RadiusX}, RadiusY={RadiusY}, Area={GetArea():F2}, Perimeter={GetPerimeter():F2}]";
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Ellipse other)
+        {
+            return this.RadiusX == other.RadiusX && this.RadiusY == other.RadiusY;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(RadiusX, RadiusY);
+    }
+}
+
+class Circle : Ellipse
+{
+    public Circle(double radius) : base(radius, radius)
+    {
+    }
+
+    public override string ToString()
+    {
+        return $"Circle [Radius={RadiusX}, Area={GetArea():F2}, Perimeter={GetPerimeter():F2}]";
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Circle other)
+        {
+            return this.RadiusX == other.RadiusX;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(RadiusX);
+    }
+}
+
+class Triangle : Figure
+{
+    public Triangle(double a, double b, double c)
+    {
+        SideA = a;
+        SideB = b;
+        SideC = c;
     }
 
     public override double GetArea()
     {
-        return 0.5 * (_a + _b) * _height;
+        double p = GetPerimeter() / 2;
+        return Math.Sqrt(p * (p - SideA) * (p - SideB) * (p - SideC));
+    }
+
+    public override double GetPerimeter() => SideA + SideB + SideC;
+
+    public override string ToString()
+    {
+        return $"Triangle [SideA={SideA}, SideB={SideB}, SideC={SideC}, Area={GetArea():F2}, Perimeter={GetPerimeter():F2}]";
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Triangle other)
+        {
+            return this.SideA == other.SideA && this.SideB == other.SideB && this.SideC == other.SideC;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(SideA, SideB, SideC);
     }
 }
