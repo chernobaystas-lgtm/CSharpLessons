@@ -3,38 +3,32 @@
 
 class Program
 {
-    static void Main(string[] args)
+ static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        Money jpy = new Money(15000, 0, "Японська єна", "сен", 150.25);
-        Money cny = new Money(540, 50, "Китайський юань", "фень", 7.24);
-        Money mxn = new Money(850, 75, "Мексиканське песо", "сентаво", 17.10);
-        Money zar = new Money(2300, 20, "Південноафриканський ранд", "цент", 19.05);
-        Money usd = new Money(100, 0, "Долар США", "цент", 1.0);
-
-        Money[] wallet = new Money[] { jpy, cny, mxn, zar, usd };
-
-        Console.WriteLine("=== ХАРАКТЕРИСТИКИ ТА СПИСОК УСІХ ВАЛЮТ ===");
-        foreach (Money currency in wallet)
+        Device[] devices = new Device[]
         {
-            Console.WriteLine(currency.ToString());
+            new Teapot("Електричний Чайник Tefal", "Швидко кип'ятить воду", 1500.00, "Білий", DeviceStatus.New, 1.7),
+            new Microwave("Мікрохвильовка Samsung", "Має режим грилю", 4500.00, "Чорний", DeviceStatus.Used, 800),
+            new Car("Спорткар Porsche", "Швидкісний автомобіль", 3200000.00, "Червоний", DeviceStatus.Refurbished, "Бензин"),
+            new Steamboat("Вантажний Пароплав", "Перевозить контейнери", 85000000.00, "Сірий", DeviceStatus.Broken, 150.5)
+        };
+
+        Console.WriteLine("=== ДЕМОНСТРАЦІЯ РОБОТИ ОНОВЛЕНИХ ПРИСТРОЇВ ===");
+        foreach (Device dev in devices)
+        {
+            dev.Show();       
+            dev.Desc();       
+            dev.Sound();      
+            Console.WriteLine($"ToString: {dev.ToString()}"); 
+            Console.WriteLine(new string('-', 60));
         }
 
-        Console.WriteLine("\n=== АВТОМАТИЧНЕ СПІВВІДНОШЕННЯ ВАЛЮТ (КРОС-КОНВЕРТАЦІЯ) ===");
-        
-        cny.ConvertTo(jpy);
-
-        zar.ConvertTo(mxn);
-
-        Console.WriteLine("\n=== РОБОТА З КЛАСОМ PRODUCT (ТОВАРИ) ===");
-        
-        Product smartphone = new Product("Смартфон", 3000, 95, "Китайський юань", "фень", 7.24);
-        Console.WriteLine(smartphone.ToString());
-
-        Console.WriteLine("\nЗастосовуємо знижку 450.50 юанів...");
-        smartphone.ReducePrice(450.50);
-        Console.WriteLine(smartphone.ToString());
+        Console.WriteLine("\n=== ПЕРЕВІРКА МЕТОДУ EQUALS ===");
+        Car car1 = new Car("Tesla Model S", "Електрокар", 2500000.00, "Білий", DeviceStatus.New, "Електрика");
+        Car car2 = new Car("Tesla Model S", "Електрокар", 2500000.00, "Білий", DeviceStatus.New, "Електрика");
+        Console.WriteLine($"Чи однакові автомобілі car1 та car2? Відповідь: {car1.Equals(car2)}");
 
         Console.ReadLine();
     }
