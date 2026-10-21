@@ -7,7 +7,90 @@ namespace Lesson8_PracticeWork
 {
     class Program
     {
-  
+         static void Main(string[] args)
+    {
+        WriteLine("--- 1. Создание и инициализация Array1 ---");
+        Array1 arr1 = new Array1();
+
+        arr1.Add(15);
+        arr1.Add(42);
+        arr1.Add(7);
+        arr1.Add(23);
+        arr1.Add(42); 
+
+        // Вывод через переопределенный метод ToString()
+        WriteLine($"Создан массив arr1: {arr1}"); 
+        WriteLine();
+
+        WriteLine("--- 2. Тестирование интерфейсов вывода (IOutput) ---");
+        arr1.Show1("Вывод через Show1(string):");
+        WriteLine();
+        arr1.Show2("Вывод через Show2(string):");
+        WriteLine();
+
+        try
+        {
+            arr1.Show1(""); // Должно выбросить ArgumentException
+        }
+        catch (ArgumentException)
+        {
+            WriteLine("Успешно перехвачено ArgumentException при передаче пустой строки!");
+        }
+        WriteLine();
+
+        WriteLine("--- 3. Тестирование интерфейса IMath<int> ---");
+        IMath<int> mathContract = arr1; 
+
+        WriteLine($"Максимальный элемент: {mathContract.Max()}"); // 42
+        WriteLine($"Минимальный элемент: {mathContract.Min()}");   // 7
+        WriteLine($"Среднее арифметическое: {mathContract.Avg()}"); // 26.8
+
+        // Поиск через int
+        int searchIntTrue = 23;
+        int searchIntFalse = 99;
+        WriteLine($"Поиск числа {searchIntTrue}: {mathContract.Search(searchIntTrue)}"); // True
+        WriteLine($"Поиск числа {searchIntFalse}: {mathContract.Search(searchIntFalse)}"); // False
+        WriteLine();
+
+        WriteLine("--- 4. Тестирование интерфейса IMathOBJ ---");
+        IMathOBJ mathObjContract = arr1;
+
+        object objInt = 42;
+        object objString = "42";
+        WriteLine($"Поиск объекта-числа ({objInt}): {mathObjContract.Search(objInt)}"); // True
+        WriteLine($"Поиск объекта-строки (\"{objString}\"): {mathObjContract.Search(objString)}"); // False
+        WriteLine();
+
+        WriteLine("--- 5. Тестирование Equals и ToString() ---");
+        Array1 arr2 = new Array1();
+        arr2.Add(15);
+        arr2.Add(42);
+        arr2.Add(7);
+        arr2.Add(23);
+        arr2.Add(42);
+
+        WriteLine($"Массив arr1: {arr1}");
+        WriteLine($"Массив arr2: {arr2}");
+        WriteLine($"Равны ли массивы по содержимому? {arr1.Equals(arr2)}"); // True
+
+        WriteLine("\nИзменяем arr2 (удаляем элемент по индексу 2)...");
+        arr2.Remove(2); // Удалит семерку
+        WriteLine($"Новый массив arr2: {arr2}");
+        WriteLine($"Равны ли они теперь? {arr1.Equals(arr2)}"); // False
+        WriteLine();
+
+        WriteLine("--- 6. Тестирование ручного ввода через Input() ---");
+        WriteLine($"Текущий размер arr2 перед вводом: {arr2.ToString()}");
+        WriteLine("Внимание: метод заполнит только существующие ячейки памяти.");
+        
+        // Метод Input() перезапишет элементы в arr2 в цикле на основе его текущего размера
+        arr2.Input(); 
+        
+        WriteLine($"Результат ручного ввода в arr2: {arr2}");
+
+        WriteLine("\nНажмите Enter для завершения программы...");
+        ReadLine();
+    }
     }
 }
 
