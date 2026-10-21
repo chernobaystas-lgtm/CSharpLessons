@@ -94,7 +94,7 @@ namespace Lesson8_PracticeWork
     }
 }
 
-class Array1 : IOutput<string> , IOutput, IMath<int>, IMathOBJ
+class Array1 : IOutput<string> , IOutput, IMath<int>, IMathOBJ, ISort
 {
     private int[] arr;
     private int ArraySize;
@@ -336,6 +336,38 @@ public bool Search(object value)
     return false;
 }
 
+    // 1. Сортировка по возрастанию
+    public void SortAsc()
+    {
+        if (ArraySize > 0)
+        {
+            System.Array.Sort(arr);
+        }
+    }
+
+    // 2. Сортировка по убыванию
+    public void SortDesc()
+    {
+        if (ArraySize > 0)
+        {
+            System.Array.Sort(arr);
+            System.Array.Reverse(arr); 
+        }
+    }
+
+    // 3. Сортировка в зависимости от параметра bool
+    public void SortByParam(bool isAsc)
+    {
+        if (isAsc)
+        {
+            SortAsc();
+        }
+        else
+        {
+            SortDesc();
+        }
+    }
+
 }
 
 public interface IOutput<T>
@@ -365,4 +397,11 @@ internal interface IMath<T>
 internal interface IMathOBJ
 {
      bool Search(Object value);
+}
+
+public interface ISort
+{
+    void SortAsc();      
+    void SortDesc();     
+    void SortByParam(bool isAsc); 
 }
