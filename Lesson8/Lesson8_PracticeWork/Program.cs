@@ -7,83 +7,40 @@ namespace Lesson8_PracticeWork
 {
     class Program
     {
-    static void Main(string[] args)
-    {
-        // 1. Создаем экземпляр нашего кастомного динамического массива
-        Array myArr = new Array();
-
-        WriteLine("=== 1. Проверка пустого массива ===");
-        myArr.Show1(); // Выведет: Array is empty.
-        WriteLine();
-
-        WriteLine("=== 2. Добавление элементов (10, 20, 30) ===");
-        myArr.Add(10);
-        myArr.Add(20);
-        myArr.Add(30);
-        myArr.Show1(); // Выведет 10, 20, 30
-        WriteLine();
-
-        WriteLine("=== 3. Изменение элемента по индексу 1 ===");
-        int oldVal = myArr.Change(1, 99);
-        WriteLine($"Старое значение: {oldVal}"); // 20
-        WriteLine("Текущий массив:");
-        myArr.Show1(); // Выведет 10, 99, 30
-        WriteLine();
-
-        WriteLine("=== 4. Удаление элемента по индексу 0 ===");
-        int removedVal = myArr.Remove(0);
-        WriteLine($"Удалено значение: {removedVal}"); 
-        WriteLine("Текущий массив:");
-        myArr.Show1();
-        WriteLine();
-
-        WriteLine("=== 5. Тест методов Show1(string) и Show2(string) ===");
-        myArr.Show1("--- Вывод через Show1 с инфой ---");
-        WriteLine();
-        myArr.Show2("--- Вывод через Show2 с инфой ---");
-        WriteLine();
-
-        WriteLine("=== 6. Тест Show2(object) со значением int ===");
-        myArr.Show2(123); // Выведет элементы массива, так как сработал type pattern matching
-        WriteLine();
-
-        WriteLine("=== 7. Тест обработки исключений при пустой строке ===");
-        try
-        {
-            myArr.Show1(""); 
-        }
-        catch (ArgumentException ex)
-        {
-            WriteLine($"Перехвачено исключение: {ex.GetType().Name} (Передана пустая строка info)");
-        }
-
-        ReadLine(); // Задержка экрана
-
-
-        Array a1 = new Array();
-        a1.Add(10);
-        a1.Add(20);
-
-        Array a2 = new Array();
-        a2.Add(10);
-        a2.Add(20);
-
-        WriteLine(a1.ToString()); // Выведет красивое: [10, 20]
-        WriteLine(a1.Equals(a2)); // Выведет: True (так как элементы одинаковые)
-
-    }
+  
     }
 }
 
-class Array : IOutput<string> , IOutput
+class Array1 : IOutput<string> , IOutput, IMath<int>, IMathOBJ
 {
     private int[] arr;
     private int ArraySize;
 
-    public Array(){
+    public Array1(){
         ArraySize = 0;
         arr = new int[0];
     }
+
+public void Input()
+{
+    for (int i = 0; i < ArraySize; ++i)
+    {
+        while (true)
+        {
+            Write($"Введите целое число для элемента [{i}]: ");
+            string? input = Console.ReadLine();
+
+            // Проверяем, успешно ли строка преобразуется в число
+            if (int.TryParse(input, out int result))
+            {
+                arr[i] = result;
+                break; // Выходим из бесконечного цикла и переходим к следующему элементу
+            }
+            
+            WriteLine("Ошибка! Вы ввели не число. Попробуйте еще раз.");
+        }
+    }
+}
 
     public void Add(int value)
     {
@@ -186,7 +143,7 @@ class Array : IOutput<string> , IOutput
 
     public override bool Equals(object? obj)
     {
-        if (obj is Array other)
+        if (obj is Array1 other)
         {
             if (this.ArraySize != other.ArraySize)
             {
@@ -220,6 +177,82 @@ class Array : IOutput<string> , IOutput
         
         return hash.ToHashCode();
     }
+
+    public int Max()
+    {
+         if (ArraySize == 0)
+    {
+        throw new InvalidOperationException("Массив пуст. Невозможно найти максимум.");
+    }
+
+    int max = arr[0]; 
+
+    for (int i = 1; i < ArraySize; i++)
+    {
+        if (arr[i] > max)
+        {
+            max = arr[i]; 
+        }
+    }
+
+    return max;
+
+
+    }
+
+    public int Min()
+    {
+            if (ArraySize == 0)
+    {
+        throw new InvalidOperationException("Массив пуст. Невозможно найти минимум.");
+    }
+
+    int min = arr[0]; 
+
+    for (int i = 1; i < ArraySize; i++)
+    {
+        if (arr[i] < min)
+        {
+            min = arr[i]; 
+        }
+    }
+
+    return min;
+    }
+
+    public float Avg()
+    {
+    if (ArraySize == 0)
+    {
+        return 0f; 
+    }
+
+    float sum = 0; 
+    int count = ArraySize;
+
+    for (int i = 0; i < ArraySize; i++)
+    {
+        sum += arr[i]; 
+    }
+
+    return sum / count; 
+    }
+
+public bool Search(int valueToSearch)
+{
+    return System.Array.IndexOf(arr, valueToSearch) != -1;
+}
+
+public bool Search(object value)
+{
+    if (value is int elem)
+    { 
+        return (System.Array.IndexOf(arr, elem) == -1) ? false : true;
+    }
+    
+    return false;
+}
+
 }
 
 public interface IOutput<T>
@@ -234,4 +267,19 @@ public interface IOutput
     void Show2(Object value);
 
     void Show2(string info);
+}
+
+internal interface IMath<T>
+{
+    int Max();
+    int Min();
+
+     float Avg();
+
+     bool Search(int valueToSearch);
+}
+
+internal interface IMathOBJ
+{
+     bool Search(Object value);
 }
