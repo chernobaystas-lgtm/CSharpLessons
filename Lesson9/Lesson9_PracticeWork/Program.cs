@@ -5,75 +5,81 @@ using static System.Console;
 
 namespace Lesson9_PracticeWork
 {
-    public delegate double CalcDelegate(double x, double y);
-
-    public class Calculator
+    public class IsThatNum
     {
-        public double Add(double x, double y)
+        public static bool IsEven(int number)
         {
-            return x + y;
+              return number % 2 == 0;
         }
-        public static double Sub(double x, double y)
+
+        public static bool IsOdd(int number)
         {
-            return x - y;
+            return number % 2 != 0;
         }
-        public double Mult(double x, double y)
+        public static bool IsPrime(int number)
         {
-            return x * y;
+             if (number < 2)
+        {
+            return false;
         }
-        public double Div(double x, double y)
+
+        // достатньо шукати дільники до кореня з числа
+        for (int i = 2; (long)i * i <= number; i++)
         {
-            if (y != 0)
+            if (number % i == 0)
             {
-                return x / y;
+                return false;
             }
-            throw new DivideByZeroException();
+        }
+
+        return true;
+        }
+
+        public static bool IsFubonaci(int number)
+        {
+            if (number < 0)
+            {
+            return false;
+            }
+
+            long previous = 0;
+            long current = 1;
+
+            while (previous < number)
+            {
+                long next = previous + current;
+                previous = current;
+                current = next;
+            }
+
+            return previous == number;
         }
     }
+
+    
     class Program
     {
         static void Main(string[] args)
         {
-            Calculator calc = new Calculator();
-            Write("Enter an expression: ");
-            string expression = ReadLine();
-            char sign = ' ';
-            // визначення знака арифметичної дії
-            foreach (char item in expression)
-            {
-                if (item == '+' || item == '-' || item == '*' || item == '/')
-                {
-                    sign = item;
-                    break;
-                }
-            }
-            try
-            {
-                string[] numbers = expression.Split(sign); // отримання значень операндів
-                CalcDelegate del = null;
-                switch (sign)
-                {
-                    case '+':
-                        del = new CalcDelegate(calc.Add);
-                        break;
-                    case '-':
-                        del = new CalcDelegate(Calculator.Sub);
-                        break;
-                    case '*':
-                        del = calc.Mult; // групове перетворення методів
-                        break;
-                    case '/':
-                        del = calc.Div;
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
-                WriteLine($"Result: {del(double.Parse(numbers[0]), double.Parse(numbers[1]))}");
-            }
-            catch (Exception ex)
-            {
-                WriteLine(ex.Message);
-            }
+            Write("Write a number to check");
+            int number = Convert.ToInt32(ReadLine());
+
+            Predicate<int> myPredicate = IsThatNum.IsOdd;
+            bool isPrimeResult = myPredicate(number); 
+            WriteLine($"[Через предикат] не просте: {isPrimeResult}");
+            
+             Predicate<int> myPredicate2 = IsThatNum.IsEven;
+            bool isPrimeResult2 = myPredicate(number); 
+            WriteLine($"[Через предикат] просте: {isPrimeResult}");
+
+             Predicate<int> myPredicate3 = IsThatNum.IsPrime;
+            bool isPrimeResult3 = myPredicate(number); 
+            WriteLine($"[Через предикат] Просте: {isPrimeResult}");
+
+             Predicate<int> myPredicate4 = IsThatNum.IsFubonaci;
+            bool isPrimeResult4 = myPredicate(number); 
+            WriteLine($"[Через предикат] фобаначи: {isPrimeResult}");
+
         }
     }
 }
