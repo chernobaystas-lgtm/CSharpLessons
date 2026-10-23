@@ -3,81 +3,35 @@ using System.Text.Unicode;
 using static System.Console;
 
 
-namespace Lesson9_PracticeWork
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        public delegate void delPrintMessage(string mes);
-         static void Main(string[] args)
+        OutputEncoding = Encoding.UTF8;
+        InputEncoding = Encoding.UTF8;
+
+        Predicate<int> isPrime = num =>
         {
-            OutputEncoding = Encoding.UTF8;
-            InputEncoding = Encoding.UTF8;
-            Write("Write something message: ");
-            string? message = ReadLine();
+            if (num < 2) return false;
+            for (int i = 2; (long)i * i <= num; i++)
+            {
+                if (num % i == 0) return false;
+            }
+            return true;
+        };
 
-            delPrintMessage message1;
-
-
-             message1 = ShowSimple;
-            message1(message);
-
-            message1 = ShowUpper;
-            message1(message);
-
-            message1 = ShowReversed;
-            message1(message);
-
-            message1 = ShowGreen;
-            message1(message);
-
-            message1 = ShowWithTime;
-            message1(message);
-
-            WriteLine();
-            WriteLine("Усі методи разом:");
-
-            message1 = ShowSimple;
-            message1 += ShowUpper;
-            message1 += ShowReversed;
-            message1(message);
-        }
-
-    static void ShowSimple(string message)
-    {
-        WriteLine($"Звичайне: {message}");
-    }
-
-    // Великими літерами
-    static void ShowUpper(string message)
-    {
-        WriteLine($"Великими літерами: {message.ToUpper()}");
-    }
-
-    // Навпаки
-    static void ShowReversed(string message)
-    {
-        string reversed = "";
-
-        for (int i = message.Length - 1; i >= 0; i--)
+        Func<DateTime, DateTime, int> getDaysBetween = (date1, date2) =>
         {
-            reversed += message[i];
-        }
+            TimeSpan difference = date1 - date2;
+            return Math.Abs(difference.Days);
+        };
 
-        WriteLine($"Навпаки: {reversed}");
-    }
+        Write("Введите число для проверки на простоту: ");
+        int number = Convert.ToInt32(ReadLine());
+        WriteLine($"Число {number} простое: {isPrime(number)}");
 
-    // Зеленим кольором
-    static void ShowGreen(string message)
-    {
-        ForegroundColor = ConsoleColor.Green;
-        WriteLine($"Зеленим: {message}");
-        ResetColor();
-    }
-
-    // З поточним часом
-    static void ShowWithTime(string message)
-    {
-        WriteLine($"[{DateTime.Now:HH:mm:ss}] {message}");
-    }
+        DateTime d1 = new DateTime(2026, 10, 1);
+        DateTime d2 = new DateTime(2026, 10, 23);
+        WriteLine($"Дней между {d1.ToShortDateString()} и {d2.ToShortDateString()}: {getDaysBetween(d1, d2)}");
     }
 }
