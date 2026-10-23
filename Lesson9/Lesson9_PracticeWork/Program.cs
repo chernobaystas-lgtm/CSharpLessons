@@ -3,81 +3,40 @@ using System.Text.Unicode;
 using static System.Console;
 
 
-namespace Lesson9_PracticeWork
+public static class StringExtensions
 {
-    class Program
+    public static int CountMatchingEndsWords(this string text)
     {
-        public delegate void delPrintMessage(string mes);
-         static void Main(string[] args)
+        if (string.IsNullOrWhiteSpace(text)) return 0;
+        char[] separators = { ' ', ',', '.', '!', '?', '-', ';', ':', '\r', '\n' };
+        string[] words = text.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        int count = 0;
+        foreach (string word in words)
         {
-            OutputEncoding = Encoding.UTF8;
-            InputEncoding = Encoding.UTF8;
-            Write("Write something message: ");
-            string? message = ReadLine();
+            if (word.Length == 1) count++;
+            else if (word.Length > 1)
+            {
+                char firstChar = char.ToLower(word[0]);
+                char lastChar = char.ToLower(word[word.Length - 1]);
 
-            delPrintMessage message1;
-
-
-             message1 = ShowSimple;
-            message1(message);
-
-            message1 = ShowUpper;
-            message1(message);
-
-            message1 = ShowReversed;
-            message1(message);
-
-            message1 = ShowGreen;
-            message1(message);
-
-            message1 = ShowWithTime;
-            message1(message);
-
-            WriteLine();
-            WriteLine("Усі методи разом:");
-
-            message1 = ShowSimple;
-            message1 += ShowUpper;
-            message1 += ShowReversed;
-            message1(message);
+                if (firstChar == lastChar) count++;
+            }
         }
-
-    static void ShowSimple(string message)
-    {
-        WriteLine($"Звичайне: {message}");
+        return count;
     }
+}
 
-    // Великими літерами
-    static void ShowUpper(string message)
+class Program
+{
+    static void Main(string[] args)
     {
-        WriteLine($"Великими літерами: {message.ToUpper()}");
-    }
+        OutputEncoding = Encoding.UTF8;
+        InputEncoding = Encoding.UTF8;
 
-    // Навпаки
-    static void ShowReversed(string message)
-    {
-        string reversed = "";
+        Write("Введите текст для проверки: ");
+        string testText = ReadLine();
 
-        for (int i = message.Length - 1; i >= 0; i--)
-        {
-            reversed += message[i];
-        }
-
-        WriteLine($"Навпаки: {reversed}");
-    }
-
-    // Зеленим кольором
-    static void ShowGreen(string message)
-    {
-        ForegroundColor = ConsoleColor.Green;
-        WriteLine($"Зеленим: {message}");
-        ResetColor();
-    }
-
-    // З поточним часом
-    static void ShowWithTime(string message)
-    {
-        WriteLine($"[{DateTime.Now:HH:mm:ss}] {message}");
-    }
+        int result = testText.CountMatchingEndsWords();
+        WriteLine($"Количество подходящих слов: {result}");
     }
 }
