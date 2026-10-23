@@ -7,77 +7,37 @@ namespace Lesson9_PracticeWork
 {
     class Program
     {
-        public delegate void delPrintMessage(string mes);
+        public static void inputtoIntArr(int[] arr, int how_much )
+        {
+            for(int i =0; i < how_much; ++i)
+            {
+                Write("Write something message: ");
+                arr[i] = Convert.ToInt16(ReadLine());
+            }
+        }
          static void Main(string[] args)
         {
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
-            Write("Write something message: ");
-            string? message = ReadLine();
 
-            delPrintMessage message1;
+            Write("how much el will be in array: ");
+            int number = Convert.ToInt16(ReadLine());
+            
+             int[] arr = new int[number]; 
 
+            inputtoIntArr(arr, number);
+            
+        Func<int, bool> isOdd = x => x % 2 != 0;
 
-             message1 = ShowSimple;
-            message1(message);
+        int[] oddNumbers = arr.Where(isOdd).ToArray();
 
-            message1 = ShowUpper;
-            message1(message);
-
-            message1 = ShowReversed;
-            message1(message);
-
-            message1 = ShowGreen;
-            message1(message);
-
-            message1 = ShowWithTime;
-            message1(message);
-
-            WriteLine();
-            WriteLine("Усі методи разом:");
-
-            message1 = ShowSimple;
-            message1 += ShowUpper;
-            message1 += ShowReversed;
-            message1(message);
-        }
-
-    static void ShowSimple(string message)
-    {
-        WriteLine($"Звичайне: {message}");
-    }
-
-    // Великими літерами
-    static void ShowUpper(string message)
-    {
-        WriteLine($"Великими літерами: {message.ToUpper()}");
-    }
-
-    // Навпаки
-    static void ShowReversed(string message)
-    {
-        string reversed = "";
-
-        for (int i = message.Length - 1; i >= 0; i--)
+        WriteLine("\nНепарні числа з масиву:");
+        foreach (int el in oddNumbers)
         {
-            reversed += message[i];
+            WriteLine(el);
+        }
+          
         }
 
-        WriteLine($"Навпаки: {reversed}");
-    }
-
-    // Зеленим кольором
-    static void ShowGreen(string message)
-    {
-        ForegroundColor = ConsoleColor.Green;
-        WriteLine($"Зеленим: {message}");
-        ResetColor();
-    }
-
-    // З поточним часом
-    static void ShowWithTime(string message)
-    {
-        WriteLine($"[{DateTime.Now:HH:mm:ss}] {message}");
-    }
     }
 }
