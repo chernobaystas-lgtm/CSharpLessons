@@ -12,72 +12,14 @@ namespace Lesson9_PracticeWork
         {
             OutputEncoding = Encoding.UTF8;
             InputEncoding = Encoding.UTF8;
-            Write("Write something message: ");
-            string? message = ReadLine();
+          
+            Write("Write a number to pow it: ");
+            int number1 = Convert.ToInt16(ReadLine());
 
-            delPrintMessage message1;
+            Func<int, int> isPositive = number => number * number;
 
-
-             message1 = ShowSimple;
-            message1(message);
-
-            message1 = ShowUpper;
-            message1(message);
-
-            message1 = ShowReversed;
-            message1(message);
-
-            message1 = ShowGreen;
-            message1(message);
-
-            message1 = ShowWithTime;
-            message1(message);
-
-            WriteLine();
-            WriteLine("Усі методи разом:");
-
-            message1 = ShowSimple;
-            message1 += ShowUpper;
-            message1 += ShowReversed;
-            message1(message);
+            Write(isPositive(number1) + "\n");
         }
 
-    static void ShowSimple(string message)
-    {
-        WriteLine($"Звичайне: {message}");
-    }
-
-    // Великими літерами
-    static void ShowUpper(string message)
-    {
-        WriteLine($"Великими літерами: {message.ToUpper()}");
-    }
-
-    // Навпаки
-    static void ShowReversed(string message)
-    {
-        string reversed = "";
-
-        for (int i = message.Length - 1; i >= 0; i--)
-        {
-            reversed += message[i];
-        }
-
-        WriteLine($"Навпаки: {reversed}");
-    }
-
-    // Зеленим кольором
-    static void ShowGreen(string message)
-    {
-        ForegroundColor = ConsoleColor.Green;
-        WriteLine($"Зеленим: {message}");
-        ResetColor();
-    }
-
-    // З поточним часом
-    static void ShowWithTime(string message)
-    {
-        WriteLine($"[{DateTime.Now:HH:mm:ss}] {message}");
-    }
     }
 }
