@@ -7,217 +7,91 @@ namespace Lesson8_PracticeWork
 {
     class Program
     {
-        static void Main(string[] args)
-        {
+static void Main(string[] args)
+{
+    WriteLine("--- Testing Television ---");
+    IRemoteControl tv = new Television();
+    tv.SetChannel(5); 
+    tv.TurnOn();
+    tv.SetChannel(7);
+    tv.TurnOff();
 
-            Write("Enter count of elements: ");
-            int count = Convert.ToInt32(ReadLine());
+    WriteLine("\n--- Testing Radio ---");
+    IRemoteControl radio = new Radio();
+    radio.TurnOn();
+    radio.SetChannel(101);
+    radio.TurnOff();
+}
 
-            int[] myArr = new int[count];
-
-            Array1 dynamicArray = new Array1();
-            dynamicArray.Input(count, myArr);
-
-            Write("Enter number for compare it with element in arrat: ");
-            int number = Convert.ToInt32(ReadLine());
-
-            dynamicArray.Less(number, myArr);
-
-            dynamicArray.Greater(number, myArr);
-
-            WriteLine("\n");
-
-        }
     }
 }
 
-public interface ICalc<T>
+public interface IRemoteControl
 {
-    int Less(T valueToCompare, int[] arr);
-
-    int Greater(T valueToCompare, int[] arr);
-
+    void TurnOn();
+    void TurnOff();
+    void SetChannel(int channel);
 }
 
-class Array1 : ICalc<int>
+
+class Television : IRemoteControl
 {
-    // My own class
-    private int[] arr;
-    private int ArraySize;
+    private bool isOn = false;
+    private int currentChannel = 1;
 
-    public Array1(){
-        ArraySize = 0;
-        arr = new int[0];
-    }
-
-    public void Add(int value)
+    public void TurnOn()
     {
-        int[] newArr = new int[ArraySize + 1];
-
-        for (int i = 0; i < ArraySize; i++)
-        {
-            newArr[i] = arr[i];
-        }
-
-        newArr[ArraySize] = value;
-        arr = newArr;
-        ArraySize++;
+        isOn = true;
+        WriteLine("Television is turned ON.");
     }
 
-    public int Remove(int index)
+    public void TurnOff()
     {
-        if (index < 0 || index >= ArraySize)
-        {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int removedValue = arr[index];
-        int[] newArr = new int[ArraySize - 1];
-
-        for (int i = 0, j = 0; i < ArraySize; i++)
-        {
-            if (i != index)
-            {
-                newArr[j++] = arr[i];
-            }
-        }
-
-        arr = newArr;
-        ArraySize--;
-        return removedValue;
+        isOn = false;
+        WriteLine("Television is turned OFF.");
     }
 
-    public int Change(int index, int newValue)
+    public void SetChannel(int channel)
     {
-        if (index < 0 || index >= ArraySize)
+        if (isOn)
         {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int oldValue = arr[index];
-        arr[index] = newValue;
-        return oldValue;
-    }
-
-    public void Show1()
-    { 
-        if (ArraySize == 0)
-        {
-            WriteLine("Array is empty.");
-            return;
-        }
-
-        for(int i = 0; i < ArraySize; i++)
-        {
-            WriteLine(arr[i]);
-        }
-    }
-
-    public void Show1(string? info)
-    {
-        if (string.IsNullOrEmpty(info))
-        { 
-           WriteLine("No info");
-           throw new ArgumentException();
-        }
-        WriteLine(info);
-        Show1();
-    }
-    
-    public void Input(int? how_much, int[] arr)
-    {   Write($"Write numbers for array: ");
-
-        for(int i = 0; i < how_much; i++)
-        {
-            Write($"{i + 1}: ");
-        if (int.TryParse(Console.ReadLine(), out int value))
-        {
-            arr[i] = value;
+            currentChannel = channel;
+            WriteLine($"Television: Switched to channel {currentChannel}");
         }
         else
         {
-            Console.WriteLine("Invalid input, saved as 0.");
-            arr[i] = 0; 
-        }
+            WriteLine("Error: Turn on the television first.");
         }
     }
-
- public override string ToString()
-    {
-        if (ArraySize == 0) return "[]";
-        return "[" + string.Join(", ", arr) + "]";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is Array1 other)
-        {
-            if (this.ArraySize != other.ArraySize)
-            {
-                return false;
-            }
-
-            // Поэлементная проверка
-            for (int i = 0; i < ArraySize; i++)
-            {
-                if (this.arr[i] != other.arr[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public override int GetHashCode()
-    {
-        HashCode hash = new HashCode();
-        
-        hash.Add(ArraySize);
-        for (int i = 0; i < ArraySize; i++)
-        {
-            hash.Add(arr[i]);
-        }
-        
-        return hash.ToHashCode();
-    }
-
-    public int Less(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"\n--- Checking numbers less than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el < valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is less than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are less than {valueToCompare}\n");
-        return count;
-    }
-
-    public int Greater(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"--- Checking numbers greater than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el > valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is bigger than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are bigger than {valueToCompare}\n");
-        return count;
-    }
-
 }
 
+class Radio : IRemoteControl
+{
+    private bool isOn = false;
+    private int currentStation = 100;
+
+    public void TurnOn()
+    {
+        isOn = true;
+        WriteLine("Radio is turned ON.");
+    }
+
+    public void TurnOff()
+    {
+        isOn = false;
+        WriteLine("Radio is turned OFF.");
+    }
+
+    public void SetChannel(int channel)
+    {
+        if (isOn)
+        {
+            currentStation = channel;
+            WriteLine($"Radio: Tuned to frequency {currentStation} FM");
+        }
+        else
+        {
+            WriteLine("Error: Turn on the radio first.");
+        }
+    }
+}
