@@ -9,87 +9,29 @@ namespace Lesson9_PracticeWork
     {
 static void Main(string[] args)
 {
-    int[] numbers = { 1, 2, 3, 4, 5, 8, 11, 13, 14, 21, 25, 34 };
-    WriteLine("Original array: " + string.Join(", ", numbers));
+    WriteLine("--- Testing Lambda for Word Verification ---");
 
-    // 1. Чётные
-    int[] evenNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsEven);
-    WriteLine("Even numbers: " + string.Join(", ", evenNumbers));
+    Func<string, string, bool> checkWord = (text, word) => 
+        text.Contains(word, StringComparison.OrdinalIgnoreCase);
 
-    // 2. Нечётные
-    int[] oddNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsOdd);
-    WriteLine("Odd numbers: " + string.Join(", ", oddNumbers));
+    // Исходные данные для проверки
+    string textToTest = "Hello world, we are learning advanced C# programming today.";
+    string wordToFind1 = "programming";
+    string wordToFind2 = "Java";
 
-    // 3. Простые
-    int[] primeNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsPrime);
-    WriteLine("Prime numbers: " + string.Join(", ", primeNumbers));
+    WriteLine($"Source text: \"{textToTest}\"");
 
-    // 4. Фибоначчи
-    int[] fibNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsFibonacci);
-    WriteLine("Fibonacci numbers: " + string.Join(", ", fibNumbers));
+    // Тест 1: Слово есть в тексте
+    bool result1 = checkWord(textToTest, wordToFind1);
+    WriteLine($"Is the word \"{wordToFind1}\" in text? Answer: {result1}");
+
+    // Тест 2: Слова нет в тексте
+    bool result2 = checkWord(textToTest, wordToFind2);
+    WriteLine($"Is the word \"{wordToFind2}\" in text? Answer: {result2}");
 }
 
 
 
-    }
-}
 
-public static class ArrayFilter
-{
-  
-    public static int[] Filter(int[] array, Predicate<int> condition)
-    {
-        int count = 0;
-        foreach (int num in array)
-        {
-            if (condition(num))
-            {
-                count++;
-            }
-        }
-
-        int[] result = new int[count];
-        int index = 0;
-        foreach (int num in array)
-        {
-            if (condition(num))
-            {
-                result[index] = num;
-                index++;
-            }
-        }
-
-        return result;
-    }
-
-    public static bool IsEven(int number)
-    {
-        return number % 2 == 0;
-    }
-
-    public static bool IsOdd(int number)
-    {
-        return number % 2 != 0;
-    }
-    public static bool IsPrime(int number)
-    {
-        if (number < 2) return false;
-        for (int i = 2; i * i <= number; i++)
-        {
-            if (number % i == 0) return false;
-        }
-        return true;
-    }
-
-    public static bool IsFibonacci(int number)
-    {
-        if (number < 0) return false;
-        return IsPerfectSquare(5 * number * number + 4) || IsPerfectSquare(5 * number * number - 4);
-    }
-
-    private static bool IsPerfectSquare(int x)
-    {
-        int s = (int)Math.Sqrt(x);
-        return s * s == x;
     }
 }
