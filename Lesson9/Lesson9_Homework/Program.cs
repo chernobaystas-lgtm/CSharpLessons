@@ -8,57 +8,50 @@ namespace Lesson9_PracticeWork
     class Program
     {
 
-
-
-
 static void Main(string[] args)
 {
-    WriteLine("--- Task 7: Checking Bracket Validity ---");
+    WriteLine("--- Task 8: Filtering Array using Extension Method ---");
     
-    string str1 = "{}[]";
-    string str2 = "(())";
-    string str3 = "[{}]";
-    string str4 = "([)]";
-    string str5 = "[[{}]";
+    int[] testArray = { 4, -5, 0, 12, -5, -3, 7, -3, -1, 8 };
+    WriteLine("Source array: " + string.Join(", ", testArray));
 
-    WriteLine($"String \"{str1}\" is valid: {str1.IsBracketBalanced()}");
-    WriteLine($"String \"{str2}\" is valid: {str2.IsBracketBalanced()}");
-    WriteLine($"String \"{str3}\" is valid: {str3.IsBracketBalanced()}");
-    WriteLine($"String \"{str4}\" is valid: {str4.IsBracketBalanced()}");
-    WriteLine($"String \"{str5}\" is valid: {str5.IsBracketBalanced()}");
+    // Создаем предикат (условие) для проверки четности
+    Predicate<int> isEvenPredicate = (num) => num % 2 == 0;
+    
+    // Вызываем наш метод расширения
+    int[] filteredArray = testArray.FilterByPredicate(isEvenPredicate);
+    WriteLine("Filtered array (even numbers only): " + string.Join(", ", filteredArray));
 }
-
 
     }
 }
 
 
+
 public static class Extensions
 {
-    public static bool IsBracketBalanced(this string str)
+    public static int[] FilterByPredicate(this int[] array, Predicate<int> condition)
     {
-        if (string.IsNullOrEmpty(str)) return true;
-
-        Stack<char> stack = new Stack<char>();
-
-        foreach (char ch in str)
+        int count = 0;
+        foreach (int num in array)
         {
-            if (ch == '(' || ch == '{' || ch == '[')
+            if (condition(num))
             {
-                stack.Push(ch);
-            }
-            else if (ch == ')' || ch == '}' || ch == ']')
-            {
-                if (stack.Count == 0) return false;
-
-                char lastOpened = stack.Pop();
-
-                if (ch == ')' && lastOpened != '(') return false;
-                if (ch == '}' && lastOpened != '{') return false;
-                if (ch == ']' && lastOpened != '[') return false;
+                count++;
             }
         }
 
-        return stack.Count == 0;
+        int[] result = new int[count];
+        int index = 0;
+        foreach (int num in array)
+        {
+            if (condition(num))
+            {
+                result[index] = num;
+                index++;
+            }
+        }
+
+        return result;
     }
 }
