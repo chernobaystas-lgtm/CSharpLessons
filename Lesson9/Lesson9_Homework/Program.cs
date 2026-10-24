@@ -9,87 +9,58 @@ namespace Lesson9_PracticeWork
     {
 static void Main(string[] args)
 {
-    int[] numbers = { 1, 2, 3, 4, 5, 8, 11, 13, 14, 21, 25, 34 };
-    WriteLine("Original array: " + string.Join(", ", numbers));
+    WriteLine("--- Testing Action Delegates (Date/Time) ---");
+    
+    Action timeAction = DateTimeAndGeometry.DisplayCurrentTime;
+    Action dateAction = DateTimeAndGeometry.DisplayCurrentDate;
+    Action dayAction = DateTimeAndGeometry.DisplayCurrentDayOfWeek;
 
-    // 1. Чётные
-    int[] evenNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsEven);
-    WriteLine("Even numbers: " + string.Join(", ", evenNumbers));
+    // Вызываем делегаты
+    timeAction();
+    dateAction();
+    dayAction();
 
-    // 2. Нечётные
-    int[] oddNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsOdd);
-    WriteLine("Odd numbers: " + string.Join(", ", oddNumbers));
+    WriteLine("\n--- Testing Func Delegates (Geometry) ---");
+    Func<double, double, double> triangleAreaFunc = DateTimeAndGeometry.CalculateTriangleArea;
+    Func<double, double, double> rectangleAreaFunc = DateTimeAndGeometry.CalculateRectangleArea;
 
-    // 3. Простые
-    int[] primeNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsPrime);
-    WriteLine("Prime numbers: " + string.Join(", ", primeNumbers));
+    // Считаем площади через делегаты
+    double triangleArea = triangleAreaFunc(5.0, 4.0); // основание 5, высота 4
+    double rectangleArea = rectangleAreaFunc(6.0, 3.5); // ширина 6, высота 3.5
 
-    // 4. Фибоначчи
-    int[] fibNumbers = ArrayFilter.Filter(numbers, ArrayFilter.IsFibonacci);
-    WriteLine("Fibonacci numbers: " + string.Join(", ", fibNumbers));
+    WriteLine($"Triangle area (base 5, height 4): {triangleArea}");
+    WriteLine($"Rectangle area (width 6, height 3.5): {rectangleArea}");
 }
-
 
 
     }
 }
 
-public static class ArrayFilter
+public static class DateTimeAndGeometry
 {
-  
-    public static int[] Filter(int[] array, Predicate<int> condition)
+    public static void DisplayCurrentTime()
     {
-        int count = 0;
-        foreach (int num in array)
-        {
-            if (condition(num))
-            {
-                count++;
-            }
-        }
-
-        int[] result = new int[count];
-        int index = 0;
-        foreach (int num in array)
-        {
-            if (condition(num))
-            {
-                result[index] = num;
-                index++;
-            }
-        }
-
-        return result;
+        WriteLine("Current Time: " + DateTime.Now.ToString("HH:mm:ss"));
     }
 
-    public static bool IsEven(int number)
+    public static void DisplayCurrentDate()
     {
-        return number % 2 == 0;
+        WriteLine("Current Date: " + DateTime.Now.ToString("dd.MM.yyyy"));
     }
 
-    public static bool IsOdd(int number)
+    public static void DisplayCurrentDayOfWeek()
     {
-        return number % 2 != 0;
-    }
-    public static bool IsPrime(int number)
-    {
-        if (number < 2) return false;
-        for (int i = 2; i * i <= number; i++)
-        {
-            if (number % i == 0) return false;
-        }
-        return true;
+        WriteLine("Current Day of Week: " + DateTime.Now.DayOfWeek);
     }
 
-    public static bool IsFibonacci(int number)
+    public static double CalculateTriangleArea(double b, double h)
     {
-        if (number < 0) return false;
-        return IsPerfectSquare(5 * number * number + 4) || IsPerfectSquare(5 * number * number - 4);
+        return (b * h) / 2.0;
     }
 
-    private static bool IsPerfectSquare(int x)
+    // Площадь прямоугольника: width * height
+    public static double CalculateRectangleArea(double w, double h)
     {
-        int s = (int)Math.Sqrt(x);
-        return s * s == x;
+        return w * h;
     }
 }
