@@ -7,27 +7,24 @@ namespace Lesson8_PracticeWork
 {
     class Program
     {
-        static void Main(string[] args)
-        {
+static void Main(string[] args)
+{
+    Array1 myDynamicArray = new Array1();
 
-            Write("Enter count of elements: ");
-            int count = Convert.ToInt32(ReadLine());
+    Write("Enter count of elements: ");
+    int count = Convert.ToInt32(ReadLine());
 
-            int[] myArr = new int[count];
+    myDynamicArray.InputElements(count);
+    WriteLine($"\nCurrent array: {myDynamicArray.ToString()}");
 
-            Array1 dynamicArray = new Array1();
-            dynamicArray.Input(count, myArr);
+    // Тестируем Задание 3
+    myDynamicArray.CountDistinct(); // Считаем уникальные
 
-            Write("Enter number for compare it with element in arrat: ");
-            int number = Convert.ToInt32(ReadLine());
+    Write("\nEnter number to find exact matches: ");
+    int searchVal = Convert.ToInt32(ReadLine());
+    myDynamicArray.EqualToValue(searchVal); // Считаем совпадения
+}
 
-            dynamicArray.Less(number, myArr);
-
-            dynamicArray.Greater(number, myArr);
-
-            WriteLine("\n");
-
-        }
     }
 }
 
@@ -39,7 +36,14 @@ public interface ICalc<T>
 
 }
 
-class Array1 : ICalc<int>
+public interface ICalc2
+{
+    int CountDistinct();
+    int EqualToValue(int valueToCompare);
+}
+
+
+class Array1 : ICalc<int>,  ICalc2
 {
     // My own class
     private int[] arr;
@@ -216,6 +220,29 @@ class Array1 : ICalc<int>
             }
         }
         WriteLine($"Result: {count} numbers in array are bigger than {valueToCompare}\n");
+        return count;
+    }
+
+      public int CountDistinct()
+    {
+        // Используем LINQ .Distinct() для быстрого поиска уникальных элементов
+        int distinctCount = arr.Distinct().Count();
+        WriteLine($"\nNumber of unique elements: {distinctCount}");
+        return distinctCount;
+    }
+
+    // Метод возвращает количество чисел, равных значению valueToCompare
+    public int EqualToValue(int valueToCompare)
+    {
+        int count = 0;
+        for (int i = 0; i < ArraySize; i++)
+        {
+            if (arr[i] == valueToCompare)
+            {
+                count++;
+            }
+        }
+        WriteLine($"Number of elements equal to {valueToCompare}: {count}");
         return count;
     }
 
