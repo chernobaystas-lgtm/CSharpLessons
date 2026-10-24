@@ -7,60 +7,77 @@ namespace Lesson9_PracticeWork
 {
     class Program
     {
+
+Action<int[]> showUniqueNegatives = (array) =>
+{
+    int[] seen = new int[array.Length];
+    int seenCount = 0;
+
+    foreach (int num in array)
+    {
+        if (num < 0)
+        {
+            bool alreadySeen = false;
+            for (int i = 0; i < seenCount; i++)
+            {
+                if (seen[i] == num)
+                {
+                    alreadySeen = true;
+                    break;
+                }
+            }
+
+            if (!alreadySeen)
+            {
+                WriteLine(num);
+                seen[seenCount] = num;
+                seenCount++;
+            }
+        }
+    }
+};
+
+
 static void Main(string[] args)
 {
-    WriteLine("--- Testing Action Delegates (Date/Time) ---");
-    
-    Action timeAction = DateTimeAndGeometry.DisplayCurrentTime;
-    Action dateAction = DateTimeAndGeometry.DisplayCurrentDate;
-    Action dayAction = DateTimeAndGeometry.DisplayCurrentDayOfWeek;
+    int[] testArray = { 4, -5, 0, 12, -5, -3, 7, -3, -1, 8 };
+    WriteLine("Source array: " + string.Join(", ", testArray));
+    WriteLine("--- Unique negative numbers ---");
 
-    // Вызываем делегаты
-    timeAction();
-    dateAction();
-    dayAction();
+    // Сама лямбда
+    Action<int[]> showUniqueNegatives = (array) =>
+    {
+        int[] seen = new int[array.Length];
+        int seenCount = 0;
 
-    WriteLine("\n--- Testing Func Delegates (Geometry) ---");
-    Func<double, double, double> triangleAreaFunc = DateTimeAndGeometry.CalculateTriangleArea;
-    Func<double, double, double> rectangleAreaFunc = DateTimeAndGeometry.CalculateRectangleArea;
+        foreach (int num in array)
+        {
+            if (num < 0)
+            {
+                bool alreadySeen = false;
+                for (int i = 0; i < seenCount; i++)
+                {
+                    if (seen[i] == num)
+                    {
+                        alreadySeen = true;
+                        break;
+                    }
+                }
+                if (!alreadySeen)
+                {
+                    WriteLine(num);
+                    seen[seenCount] = num;
+                    seenCount++;
+                }
+            }
+        }
+    };
 
-    // Считаем площади через делегаты
-    double triangleArea = triangleAreaFunc(5.0, 4.0); // основание 5, высота 4
-    double rectangleArea = rectangleAreaFunc(6.0, 3.5); // ширина 6, высота 3.5
-
-    WriteLine($"Triangle area (base 5, height 4): {triangleArea}");
-    WriteLine($"Rectangle area (width 6, height 3.5): {rectangleArea}");
+    // Вызов лямбды
+    showUniqueNegatives(testArray);
 }
 
 
-    }
-}
 
-public static class DateTimeAndGeometry
-{
-    public static void DisplayCurrentTime()
-    {
-        WriteLine("Current Time: " + DateTime.Now.ToString("HH:mm:ss"));
-    }
-
-    public static void DisplayCurrentDate()
-    {
-        WriteLine("Current Date: " + DateTime.Now.ToString("dd.MM.yyyy"));
-    }
-
-    public static void DisplayCurrentDayOfWeek()
-    {
-        WriteLine("Current Day of Week: " + DateTime.Now.DayOfWeek);
-    }
-
-    public static double CalculateTriangleArea(double b, double h)
-    {
-        return (b * h) / 2.0;
-    }
-
-    // Площадь прямоугольника: width * height
-    public static double CalculateRectangleArea(double w, double h)
-    {
-        return w * h;
     }
 }
