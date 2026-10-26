@@ -19,37 +19,36 @@ class Program
     }
 
 
-  public static int[] Filter(this int[] array, Predicate<int> predicate)
-        {
-            if (array == null) throw new ArgumentNullException(nameof(array));
-            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
-            int count = 0;
-            foreach (int item in array)
-            {
-                if (predicate(item))
-                {
-                    count++;
-                }
-            }
-
-            int[] resultArray = new int[count];
-
-            int index = 0;
-            foreach (int item in array)
-            {
-                if (predicate(item))
-                {
-                    resultArray[index] = item;
-                    index++; 
-                }
-            }
-
-            return resultArray;
-        }
 }
 
+public static class ArrayExtensions
+{
+    public static int[] Filter(this int[] array, Predicate<int> predicate)
+    {
+        if (array == null) throw new ArgumentNullException(nameof(array));
+        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
+        int count = 0;
+        foreach (int item in array)
+        {
+            if (predicate(item)) count++;
+        }
+
+        int[] resultArray = new int[count];
+        int index = 0;
+        foreach (int item in array)
+        {
+            if (predicate(item))
+            {
+                resultArray[index] = item;
+                index++;
+            }
+        }
+
+        return resultArray;
+    }
+}
 
 class Array1 
 {
