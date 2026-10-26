@@ -9,16 +9,22 @@ class Program
 {
     static void Main(string[] args)
     { 
-            int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        try{
+           
 
             int[] evenNumbers = numbers.Filter(x => x % 2 == 0);
             WriteLine("Чётные числа: " + string.Join(", ", evenNumbers));
 
             int[] oddNumbers = numbers.Filter(x => x % 2 != 0);
             WriteLine("Нечётные числа: " + string.Join(", ", oddNumbers));
+        }
+        catch(ArgumentNullException ex)
+        {
+            WriteLine(ex.Message);
+        }
+
     }
-
-
 
 }
 
