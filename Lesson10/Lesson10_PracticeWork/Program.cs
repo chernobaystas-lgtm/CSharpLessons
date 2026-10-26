@@ -7,165 +7,110 @@ using static System.Exception;
 
 class Program
 {
-    static void Main(string[] args)
-    { 
-        int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        try{
-           
-
-            int[] evenNumbers = numbers.Filter(x => x % 2 == 0);
-            WriteLine("Чётные числа: " + string.Join(", ", evenNumbers));
-
-            int[] oddNumbers = numbers.Filter(x => x % 2 != 0);
-            WriteLine("Нечётные числа: " + string.Join(", ", oddNumbers));
-        }
-        catch(ArgumentNullException ex)
+      static void Main(string[] args)
         {
-            WriteLine(ex.Message);
-        }
+            Person[] people = new Person[3];
+            
+            people[0] = new Person("Ivan", "Ivanov", 20);
+            people[1] = new Person("Anna", "Petrova", 25);
+            
+            WriteLine("--- Заполнение данных для третьего человека ---");
+            people[2] = new Person();
+            people[2].Input();
 
-    }
+            WriteLine("\n--- Список всех людей ---");
+            foreach (var p in people)
+            {
+                WriteLine(p.ToString());
+            }
+
+            WriteLine("\n--- Результаты работы методов расширения ---");
+            
+            Person youngest = people.FindYounger();
+            WriteLine($"Самый молодой: {(youngest != null ? youngest.ToString() : "Нет данных")}");
+
+            Person oldest = people.FindOlder();
+            WriteLine($"Самый старший: {(oldest != null ? oldest.ToString() : "Нет данных")}");
+
+            double midAge = people.FindMiddleAge();
+            WriteLine($"Средний возраст группы: {midAge:F2}");
+
+            // 3. Тестируем Equals
+            WriteLine("\n--- Проверка сравнения (Equals) ---");
+            Person clone = new Person(people[0].Name, people[0].LastName, people[0].Age);
+            WriteLine($"Первый человек равен своему клону? {people[0].Equals(clone)}");
+            WriteLine($"Первый человек равен второму? {people[0].Equals(people[1])}");
+            
+            ReadLine(); 
+        }
 
 }
 
-public static class ArrayExtensions
+
+
+public class Person
 {
-    public static int[] Filter(this int[] array, Predicate<int> predicate)
+    public string Name { get; set; }
+    public string LastName { get; set; }
+    public int Age { get; set; }
+
+    public Person()
     {
-        if (array == null) throw new ArgumentNullException(nameof(array));
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
-
-        int count = 0;
-        foreach (int item in array)
-        {
-            if (predicate(item)) count++;
-        }
-
-        int[] resultArray = new int[count];
-        int index = 0;
-        foreach (int item in array)
-        {
-            if (predicate(item))
-            {
-                resultArray[index] = item;
-                index++;
-            }
-        }
-
-        return resultArray;
-    }
-}
-
-class Array1 
-{
-    private int[] arr;
-    private int ArraySize;
-
-    public Array1(){
-        ArraySize = 0;
-        arr = new int[0];
+        Name = "No name";
+        LastName = "No last name";
+        Age = 0;
     }
 
-    public void Add(int value)
+    public Person(string Name, string LastName, int Age)
     {
-        int[] newArr = new int[ArraySize + 1];
-
-        for (int i = 0; i < ArraySize; i++)
-        {
-            newArr[i] = arr[i];
-        }
-
-        newArr[ArraySize] = value;
-        arr = newArr;
-        ArraySize++;
+        this.Name = Name;
+        this.LastName = LastName;
+        this.Age = Age;
     }
 
-    public int Remove(int index)
+    public void Input()
     {
-        if (index < 0 || index >= ArraySize)
+        Write("Input name: ");
+        Name = ReadLine(); 
+        if (string.IsNullOrEmpty(Name))
         {
-            throw new IndexOutOfRangeException("Index is out of range.");
+            Write("No name\n");
         }
 
-        int removedValue = arr[index];
-        int[] newArr = new int[ArraySize - 1];
-
-        for (int i = 0, j = 0; i < ArraySize; i++)
+        Write("Input last name: ");
+        LastName = ReadLine(); 
+        if (string.IsNullOrEmpty(LastName))
         {
-            if (i != index)
-            {
-                newArr[j++] = arr[i];
-            }
+            Write("No last name\n");
         }
 
-        arr = newArr;
-        ArraySize--;
-        return removedValue;
+        Write("Input Age: ");
+        string ageInput = ReadLine(); 
+        
+        if (short.TryParse(ageInput, out short parsedAge))
+        {
+            Age = parsedAge;
+        }
+        else
+        {
+            Write("Age is 0\n");
+            Age = 0;
+        }
     }
 
-    public int Change(int index, int newValue)
+        public override string ToString()
     {
-        if (index < 0 || index >= ArraySize)
-        {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int oldValue = arr[index];
-        arr[index] = newValue;
-        return oldValue;
+        return $"Name: {Name}, Last name: {LastName}, Age: {Age}";
     }
 
-    public void Show1()
-    { 
-        if (ArraySize == 0)
-        {
-            WriteLine("Array is empty.");
-            return;
-        }
 
-        for(int i = 0; i < ArraySize; i++)
-        {
-            WriteLine(arr[i]);
-        }
-    }
-
-    public void Show1(string? info)
+ public override bool Equals(object? obj)
     {
-        if (string.IsNullOrEmpty(info))
-        { 
-           WriteLine("No info");
-           throw new ArgumentException();
-        }
-        WriteLine(info);
-        Show1();
-    }
-    
-
- public override string ToString()
-    {
-        if (ArraySize == 0) return "[]";
-        return "[" + string.Join(", ", arr) + "]";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is Array1 other)
+        if (obj is Person other)
         {
-            if (this.ArraySize != other.ArraySize)
-            {
-                return false;
-            }
-
-            // Поэлементная проверка
-            for (int i = 0; i < ArraySize; i++)
-            {
-                if (this.arr[i] != other.arr[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Name == other.Name && 
+                   LastName == other.LastName && 
+                   Age == other.Age;
         }
 
         return false;
@@ -173,98 +118,59 @@ class Array1
 
     public override int GetHashCode()
     {
-        HashCode hash = new HashCode();
-        
-        hash.Add(ArraySize);
-        for (int i = 0; i < ArraySize; i++)
-        {
-            hash.Add(arr[i]);
-        }
-        
-        return hash.ToHashCode();
+        return HashCode.Combine(Name, LastName, Age);
     }
 
-    public int Less(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"\n--- Checking numbers less than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el < valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is less than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are less than {valueToCompare}\n");
-        return count;
-    }
-
-    public int Greater(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"--- Checking numbers greater than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el > valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is bigger than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are bigger than {valueToCompare}\n");
-        return count;
-    }
-
-      public void InputElements(int how_much)
-    {
-        WriteLine($"Write {how_much} numbers for array:");
-        for (int i = 0; i < how_much; i++)
-        {
-            Write($"Element {i + 1}: ");
-            if (int.TryParse(ReadLine(), out int value))
-            {
-                Add(value); 
-            }
-            else
-            {
-                WriteLine("Invalid input, saved as 0.");
-                Add(0);
-            }
-        }
-    }
-
-
-     public void ShowEven()
-    {
-        WriteLine("\n--- Even numbers in array ---");
-        bool hasEven = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 == 0)
-            {
-                WriteLine(arr[i]);
-                hasEven = true;
-            }
-        }
-        if (!hasEven) WriteLine("No even numbers found.");
-    }
-
-    public void ShowOdd()
-    {
-        WriteLine("\n--- Odd numbers in array ---");
-        bool hasOdd = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 != 0)
-            {
-                WriteLine(arr[i]);
-                hasOdd = true;
-            }
-        }
-        if (!hasOdd) WriteLine("No odd numbers found.");
-    }
 }
 
+public static class ExtensuinsFunc
+{
+public static Person FindYounger(this Person[] array)
+    {
+        if (array == null || array.Length == 0) return null;
+
+        Person youngest = array[0];
+
+        for (int i = 1; i < array.Length; i++)
+        {
+            if (array[i].Age < youngest.Age)
+            {
+                youngest = array[i]; 
+            }
+        }
+
+        return youngest; 
+    }
+    public static Person FindOlder(this Person[] array)
+    {
+        if (array == null || array.Length == 0) return null;
+
+        Person oldest = array[0];
+
+        for (int i = 1; i < array.Length; i++)
+        {
+            if (array[i].Age > oldest.Age) 
+            {
+                oldest = array[i]; 
+            }
+        }
+
+        return oldest; 
+    }
+
+    public static double FindMiddleAge(this Person[] array)
+    {
+        if (array == null || array.Length == 0) return 0;
+
+        int ageSum = 0;
+
+        foreach (Person person in array)
+        {
+            ageSum += person.Age;
+        }
+
+        return (double)ageSum / array.Length;
+    }
+
+
+}
