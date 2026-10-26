@@ -1,270 +1,202 @@
 ﻿namespace LessonsMainCSharp;
+using System;
 using System.ComponentModel;
 using static System.Console;
-using static System.Convert;
-using static System.Array;
-using static System.Exception;
+
+// Делегат для событий рюкзака
+public delegate void BagEventHandler(string message);
+
+// 1. ИНТЕРФЕЙС, который задает контракт для рюкзака
+public interface IBag
+{
+    string Color { get; set; }
+    string ManufactureName { get; set; }
+    double Weight { get; set; }
+    double Volume { get; set; }
+    BagItem[] Items { get; }
+
+    void AddItem(BagItem item);
+    void RemoveItem(int itemIndex);
+    double GetCurrentItemsVolume();
+}
 
 class Program
 {
     static void Main(string[] args)
     { 
-        int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        try{
-           
+        IBag myBag = new Bag("Синий", "Adidas", 500.0, 6.0);
 
-            int[] evenNumbers = numbers.Filter(x => x % 2 == 0);
-            WriteLine("Чётные числа: " + string.Join(", ", evenNumbers));
-
-            int[] oddNumbers = numbers.Filter(x => x % 2 != 0);
-            WriteLine("Нечётные числа: " + string.Join(", ", oddNumbers));
-        }
-        catch(ArgumentNullException ex)
+        if (myBag is Bag bagEvents)
         {
-            WriteLine(ex.Message);
+            bagEvents.OnItemAdded += (msg) => WriteLine($"[УСПЕХ]: {msg}");
+            bagEvents.OnItemRemoved += (msg) => WriteLine($"[УДАЛЕНО]: {msg}");
+            bagEvents.OnBagFull += (msg) => WriteLine($"[ВНИМАНИЕ!]: {msg}");
         }
 
-    }
+        WriteLine(myBag.ToString());
+        WriteLine("---------------------------------------------");
 
-}
+        BagItem book = new BagItem(1, "Учебник по C#", ItemType.BooksAndTextbooks, 300, 2.5, ItemQuality.Excellent);
+        BagItem pen = new BagItem(2, "Ручка", ItemType.WritingInstruments, 50, 0.5, ItemQuality.Normal);
+        BagItem jacket = new BagItem(3, "Куртка", ItemType.Clothing, 1200, 4.0, ItemQuality.Normal);
 
-public static class ArrayExtensions
-{
-    public static int[] Filter(this int[] array, Predicate<int> predicate)
-    {
-        if (array == null) throw new ArgumentNullException(nameof(array));
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+        myBag.AddItem(book);
+        myBag.AddItem(pen);
+        
+        myBag.AddItem(jacket);
 
-        int count = 0;
-        foreach (int item in array)
+        WriteLine("\nСодержимое рюкзака:");
+        foreach (var item in myBag.Items)
         {
-            if (predicate(item)) count++;
+            WriteLine($"  -> {item}"); 
         }
 
-        int[] resultArray = new int[count];
-        int index = 0;
-        foreach (int item in array)
-        {
-            if (predicate(item))
-            {
-                resultArray[index] = item;
-                index++;
-            }
-        }
-
-        return resultArray;
+        ReadLine();
     }
 }
 
-class Array1 
+public enum ItemType
 {
-    private int[] arr;
-    private int ArraySize;
+    BooksAndTextbooks,     
+    WritingInstruments,    
+    MeasuringTools,        
+    MechanicalDevices,     
+    ElectricalDevices,     
+    Clothing,              
+    Other                  
+}
 
-    public Array1(){
-        ArraySize = 0;
-        arr = new int[0];
-    }
+public enum ItemQuality
+{
+    Poor,     
+    Normal,   
+    Excellent  
+}
 
-    public void Add(int value)
+public record BagItem(int Index, string Name, ItemType Type, double Weight, double Volume, ItemQuality Quality);
+
+
+// Класс рюкзака, реализующий интерфейс IBag
+public class Bag : IBag
+{
+    public string Color { get; set; }
+    public string ManufactureName { get; set; }
+    public double Weight { get; set; }
+    public double Volume { get; set; } 
+    
+    public BagItem[] Items { get; private set; }
+
+    // События
+    public event BagEventHandler OnItemAdded;   
+    public event BagEventHandler OnItemRemoved; 
+    public event BagEventHandler OnBagFull;    
+
+    public Bag()
     {
-        int[] newArr = new int[ArraySize + 1];
-
-        for (int i = 0; i < ArraySize; i++)
-        {
-            newArr[i] = arr[i];
-        }
-
-        newArr[ArraySize] = value;
-        arr = newArr;
-        ArraySize++;
+        Color = "Black";
+        ManufactureName = "Without manufacture";
+        Weight = 500.0;
+        Volume = 15.0;
+        Items = new BagItem[0]; 
     }
 
-    public int Remove(int index)
+    public Bag(string color, string manufactureName, double weight, double volume)
     {
-        if (index < 0 || index >= ArraySize)
-        {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int removedValue = arr[index];
-        int[] newArr = new int[ArraySize - 1];
-
-        for (int i = 0, j = 0; i < ArraySize; i++)
-        {
-            if (i != index)
-            {
-                newArr[j++] = arr[i];
-            }
-        }
-
-        arr = newArr;
-        ArraySize--;
-        return removedValue;
+        Color = color;
+        ManufactureName = manufactureName;
+        Weight = weight;
+        Volume = volume;
+        Items = new BagItem[0];
     }
 
-    public int Change(int index, int newValue)
+    public double GetCurrentItemsVolume()
     {
-        if (index < 0 || index >= ArraySize)
+        double currentVolume = 0;
+        foreach (var item in Items)
         {
-            throw new IndexOutOfRangeException("Index is out of range.");
+            currentVolume += item.Volume;
         }
-
-        int oldValue = arr[index];
-        arr[index] = newValue;
-        return oldValue;
+        return currentVolume;
     }
 
-    public void Show1()
-    { 
-        if (ArraySize == 0)
+    public void AddItem(BagItem item)
+    {
+        if (item == null) return;
+
+        if (GetCurrentItemsVolume() + item.Volume > Volume)
         {
-            WriteLine("Array is empty.");
+            OnBagFull?.Invoke($"Невозможно положить '{item.Name}'. Недостаточно места! Свободно {Volume - GetCurrentItemsVolume()} л.");
             return;
         }
 
-        for(int i = 0; i < ArraySize; i++)
+        Array.Resize(ref Items, Items.Length + 1);
+        Items[Items.Length - 1] = item;
+
+        OnItemAdded?.Invoke($"Предмет '{item.Name}' добавлен.");
+    }
+
+    public void RemoveItem(int itemIndex)
+    {
+        int targetIdx = -1;
+        for (int i = 0; i < Items.Length; i++)
         {
-            WriteLine(arr[i]);
+            if (Items[i].Index == itemIndex)
+            {
+                targetIdx = i;
+                break;
+            }
         }
+
+        if (targetIdx == -1) return;
+
+        string removedName = Items[targetIdx].Name;
+
+        for (int i = targetIdx; i < Items.Length - 1; i++)
+        {
+            Items[i] = Items[i + 1];
+        }
+
+        Array.Resize(ref Items, Items.Length - 1);
+        OnItemRemoved?.Invoke($"Предмет '{removedName}' удален.");
     }
 
-    public void Show1(string? info)
+    public void Input()
     {
-        if (string.IsNullOrEmpty(info))
-        { 
-           WriteLine("No info");
-           throw new ArgumentException();
-        }
-        WriteLine(info);
-        Show1();
-    }
-    
+        Write("Введіть колір рюкзака: ");
+        Color = ReadLine() ?? "Black";
 
- public override string ToString()
+        Write("Введіть виробника: ");
+        ManufactureName = ReadLine() ?? "Without manufacture";
+
+        Write("Введіть вагу (г): ");
+        if (!double.TryParse(ReadLine(), out double w)) Weight = 500.0;
+        else Weight = w;
+
+        Write("Введіть загальний об'єм (л): ");
+        if (!double.TryParse(ReadLine(), out double v)) Volume = 15.0;
+        else Volume = v;
+    }
+
+    public override string ToString()
     {
-        if (ArraySize == 0) return "[]";
-        return "[" + string.Join(", ", arr) + "]";
+        return $"Рюкзак: {Color}, Виробник: {ManufactureName}, Макс. Об'єм: {Volume}л. Занято: {GetCurrentItemsVolume()}л. Предметів: {Items.Length}";
     }
 
     public override bool Equals(object? obj)
     {
-        if (obj is Array1 other)
+        if (obj is Bag other)
         {
-            if (this.ArraySize != other.ArraySize)
-            {
-                return false;
-            }
-
-            // Поэлементная проверка
-            for (int i = 0; i < ArraySize; i++)
-            {
-                if (this.arr[i] != other.arr[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return Color == other.Color &&
+                   ManufactureName == other.ManufactureName &&
+                   Weight == other.Weight &&
+                   Volume == other.Volume;
         }
-
         return false;
     }
 
     public override int GetHashCode()
     {
-        HashCode hash = new HashCode();
-        
-        hash.Add(ArraySize);
-        for (int i = 0; i < ArraySize; i++)
-        {
-            hash.Add(arr[i]);
-        }
-        
-        return hash.ToHashCode();
-    }
-
-    public int Less(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"\n--- Checking numbers less than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el < valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is less than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are less than {valueToCompare}\n");
-        return count;
-    }
-
-    public int Greater(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"--- Checking numbers greater than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el > valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is bigger than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are bigger than {valueToCompare}\n");
-        return count;
-    }
-
-      public void InputElements(int how_much)
-    {
-        WriteLine($"Write {how_much} numbers for array:");
-        for (int i = 0; i < how_much; i++)
-        {
-            Write($"Element {i + 1}: ");
-            if (int.TryParse(ReadLine(), out int value))
-            {
-                Add(value); 
-            }
-            else
-            {
-                WriteLine("Invalid input, saved as 0.");
-                Add(0);
-            }
-        }
-    }
-
-
-     public void ShowEven()
-    {
-        WriteLine("\n--- Even numbers in array ---");
-        bool hasEven = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 == 0)
-            {
-                WriteLine(arr[i]);
-                hasEven = true;
-            }
-        }
-        if (!hasEven) WriteLine("No even numbers found.");
-    }
-
-    public void ShowOdd()
-    {
-        WriteLine("\n--- Odd numbers in array ---");
-        bool hasOdd = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 != 0)
-            {
-                WriteLine(arr[i]);
-                hasOdd = true;
-            }
-        }
-        if (!hasOdd) WriteLine("No odd numbers found.");
+        return HashCode.Combine(Color, ManufactureName, Weight, Volume);
     }
 }
 
