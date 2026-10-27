@@ -1,270 +1,110 @@
-﻿namespace LessonsMainCSharp;
-using System.ComponentModel;
+﻿using System;
+using System.Text;
 using static System.Console;
-using static System.Convert;
-using static System.Array;
-using static System.Exception;
+
+namespace Lesson10_Homework;
+
+// Запис «Оцінки студента»: ім'я та оцінки з набору предметів
+record StudentGrades(string Name, int[] Grades)
+{
+    public double Average
+    {
+        get
+        {
+            int sum = 0;
+
+            for (int i = 0; i < Grades.Length; i++)
+            {
+                sum += Grades[i];
+            }
+
+            return (double)sum / Grades.Length;
+        }
+    }
+}
 
 class Program
 {
+    // Максимальна оцінка (12-бальна шкала). Якщо в вас інша, змініть тут
+    const int MaxGrade = 12;
+
     static void Main(string[] args)
-    { 
-        int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        try{
-           
-
-            int[] evenNumbers = numbers.Filter(x => x % 2 == 0);
-            WriteLine("Чётные числа: " + string.Join(", ", evenNumbers));
-
-            int[] oddNumbers = numbers.Filter(x => x % 2 != 0);
-            WriteLine("Нечётные числа: " + string.Join(", ", oddNumbers));
-        }
-        catch(ArgumentNullException ex)
-        {
-            WriteLine(ex.Message);
-        }
-
-    }
-
-}
-
-public static class ArrayExtensions
-{
-    public static int[] Filter(this int[] array, Predicate<int> predicate)
     {
-        if (array == null) throw new ArgumentNullException(nameof(array));
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+        OutputEncoding = Encoding.UTF8;
+        InputEncoding = Encoding.UTF8;
 
-        int count = 0;
-        foreach (int item in array)
+        int studentCount = ReadInt("Скільки студентів: ", 1, 100);
+        int subjectCount = ReadInt("Скільки предметів: ", 1, 20);
+
+        StudentGrades[] students = new StudentGrades[studentCount];
+
+        for (int i = 0; i < students.Length; i++)
         {
-            if (predicate(item)) count++;
+            WriteLine();
+            Write($"Ім'я студента {i + 1}: ");
+            string name = ReadLine() ?? "";
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                name = $"Студент {i + 1}";
+            }
+
+            int[] grades = new int[subjectCount];
+
+            for (int j = 0; j < grades.Length; j++)
+            {
+                grades[j] = ReadInt($"  Оцінка з предмета {j + 1} (1-{MaxGrade}): ", 1, MaxGrade);
+            }
+
+            students[i] = new StudentGrades(name.Trim(), grades);
         }
 
-        int[] resultArray = new int[count];
-        int index = 0;
-        foreach (int item in array)
+        // таблиця всіх студентів
+        WriteLine();
+        WriteLine($"{"Студент",-20}{"Середня",8}");
+
+        for (int i = 0; i < students.Length; i++)
         {
-            if (predicate(item))
+            WriteLine($"{students[i].Name,-20}{students[i].Average,8:F2}");
+        }
+
+        // шукаємо студента з максимальною середньою оцінкою
+        StudentGrades best = students[0];
+
+        for (int i = 1; i < students.Length; i++)
+        {
+            if (students[i].Average > best.Average)
             {
-                resultArray[index] = item;
-                index++;
+                best = students[i];
             }
         }
 
-        return resultArray;
-    }
-}
+        WriteLine();
+        WriteLine($"Найвища середня оцінка у студента {best.Name}: {best.Average:F2}");
 
-class Array1 
-{
-    private int[] arr;
-    private int ArraySize;
+        Write("Оцінки: ");
 
-    public Array1(){
-        ArraySize = 0;
-        arr = new int[0];
-    }
-
-    public void Add(int value)
-    {
-        int[] newArr = new int[ArraySize + 1];
-
-        for (int i = 0; i < ArraySize; i++)
+        for (int i = 0; i < best.Grades.Length; i++)
         {
-            newArr[i] = arr[i];
+            Write(best.Grades[i] + " ");
         }
 
-        newArr[ArraySize] = value;
-        arr = newArr;
-        ArraySize++;
+        WriteLine();
     }
 
-    public int Remove(int index)
+    // Питає ціле число в діапазоні min-max, поки не введуть коректне
+    static int ReadInt(string text, int min, int max)
     {
-        if (index < 0 || index >= ArraySize)
+        while (true)
         {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
+            Write(text);
 
-        int removedValue = arr[index];
-        int[] newArr = new int[ArraySize - 1];
-
-        for (int i = 0, j = 0; i < ArraySize; i++)
-        {
-            if (i != index)
+            if (int.TryParse(ReadLine(), out int value) && value >= min && value <= max)
             {
-                newArr[j++] = arr[i];
-            }
-        }
-
-        arr = newArr;
-        ArraySize--;
-        return removedValue;
-    }
-
-    public int Change(int index, int newValue)
-    {
-        if (index < 0 || index >= ArraySize)
-        {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int oldValue = arr[index];
-        arr[index] = newValue;
-        return oldValue;
-    }
-
-    public void Show1()
-    { 
-        if (ArraySize == 0)
-        {
-            WriteLine("Array is empty.");
-            return;
-        }
-
-        for(int i = 0; i < ArraySize; i++)
-        {
-            WriteLine(arr[i]);
-        }
-    }
-
-    public void Show1(string? info)
-    {
-        if (string.IsNullOrEmpty(info))
-        { 
-           WriteLine("No info");
-           throw new ArgumentException();
-        }
-        WriteLine(info);
-        Show1();
-    }
-    
-
- public override string ToString()
-    {
-        if (ArraySize == 0) return "[]";
-        return "[" + string.Join(", ", arr) + "]";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is Array1 other)
-        {
-            if (this.ArraySize != other.ArraySize)
-            {
-                return false;
+                return value;
             }
 
-            // Поэлементная проверка
-            for (int i = 0; i < ArraySize; i++)
-            {
-                if (this.arr[i] != other.arr[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            WriteLine($"Треба ввести ціле число від {min} до {max}, ще раз.");
         }
-
-        return false;
-    }
-
-    public override int GetHashCode()
-    {
-        HashCode hash = new HashCode();
-        
-        hash.Add(ArraySize);
-        for (int i = 0; i < ArraySize; i++)
-        {
-            hash.Add(arr[i]);
-        }
-        
-        return hash.ToHashCode();
-    }
-
-    public int Less(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"\n--- Checking numbers less than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el < valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is less than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are less than {valueToCompare}\n");
-        return count;
-    }
-
-    public int Greater(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"--- Checking numbers greater than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el > valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is bigger than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are bigger than {valueToCompare}\n");
-        return count;
-    }
-
-      public void InputElements(int how_much)
-    {
-        WriteLine($"Write {how_much} numbers for array:");
-        for (int i = 0; i < how_much; i++)
-        {
-            Write($"Element {i + 1}: ");
-            if (int.TryParse(ReadLine(), out int value))
-            {
-                Add(value); 
-            }
-            else
-            {
-                WriteLine("Invalid input, saved as 0.");
-                Add(0);
-            }
-        }
-    }
-
-
-     public void ShowEven()
-    {
-        WriteLine("\n--- Even numbers in array ---");
-        bool hasEven = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 == 0)
-            {
-                WriteLine(arr[i]);
-                hasEven = true;
-            }
-        }
-        if (!hasEven) WriteLine("No even numbers found.");
-    }
-
-    public void ShowOdd()
-    {
-        WriteLine("\n--- Odd numbers in array ---");
-        bool hasOdd = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 != 0)
-            {
-                WriteLine(arr[i]);
-                hasOdd = true;
-            }
-        }
-        if (!hasOdd) WriteLine("No odd numbers found.");
     }
 }
-
