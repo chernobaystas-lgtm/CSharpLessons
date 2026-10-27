@@ -1,270 +1,321 @@
-﻿namespace LessonsMainCSharp;
-using System.ComponentModel;
+﻿using System;
+using System.Globalization;
+using System.Text;
 using static System.Console;
-using static System.Convert;
-using static System.Array;
-using static System.Exception;
+
+namespace Lesson10_Homework;
 
 class Program
 {
     static void Main(string[] args)
-    { 
-        int[] numbers = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        try{
-           
-
-            int[] evenNumbers = numbers.Filter(x => x % 2 == 0);
-            WriteLine("Чётные числа: " + string.Join(", ", evenNumbers));
-
-            int[] oddNumbers = numbers.Filter(x => x % 2 != 0);
-            WriteLine("Нечётные числа: " + string.Join(", ", oddNumbers));
-        }
-        catch(ArgumentNullException ex)
-        {
-            WriteLine(ex.Message);
-        }
-
-    }
-
-}
-
-public static class ArrayExtensions
-{
-    public static int[] Filter(this int[] array, Predicate<int> predicate)
     {
-        if (array == null) throw new ArgumentNullException(nameof(array));
-        if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+        OutputEncoding = Encoding.UTF8;
+        InputEncoding = Encoding.UTF8;
 
-        int count = 0;
-        foreach (int item in array)
-        {
-            if (predicate(item)) count++;
-        }
+        // Завдання 4: клас «Кредитна картка» з подіями
+        CreditCard card = new CreditCard("4111 1111 1111 1111", "Іваненко Іван",
+            new DateTime(2030, 12, 1), "1234", 1000, 500);
 
-        int[] resultArray = new int[count];
-        int index = 0;
-        foreach (int item in array)
+        // цільова сума, при досягненні якої спрацює подія
+        card.Target = 1000;
+
+        // підписуємось на події: кожній події відповідає свій метод
+        card.Replenished += OnReplenished;
+        card.Spent += OnSpent;
+        card.CreditStarted += OnCreditStarted;
+        card.TargetReached += OnTargetReached;
+        card.PinChanged += OnPinChanged;
+
+        while (true)
         {
-            if (predicate(item))
+            WriteLine();
+            WriteLine("1 - показати дані картки");
+            WriteLine("2 - поповнити рахунок");
+            WriteLine("3 - витратити кошти");
+            WriteLine("4 - змінити PIN");
+            WriteLine("5 - задати цільову суму");
+            WriteLine("0 - вихід");
+            Write("Ваш вибір: ");
+            string choice = ReadLine() ?? "";
+            WriteLine();
+
+            try
             {
-                resultArray[index] = item;
-                index++;
+                switch (choice)
+                {
+                    case "1":
+                        card.Show();
+                        break;
+                    case "2":
+                        card.Replenish(ReadMoney("Сума поповнення: "));
+                        break;
+                    case "3":
+                        SpendMoney(card);
+                        break;
+                    case "4":
+                        ChangePin(card);
+                        break;
+                    case "5":
+                        card.Target = ReadMoney("Цільова сума: ");
+                        WriteLine($"Цільову суму задано: {card.Target:F2}");
+                        break;
+                    case "0":
+                        return;
+                    default:
+                        WriteLine("Помилка: потрібно ввести число від 0 до 5!");
+                        break;
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                WriteLine($"Помилка: {ex.Message}");
             }
         }
-
-        return resultArray;
-    }
-}
-
-class Array1 
-{
-    private int[] arr;
-    private int ArraySize;
-
-    public Array1(){
-        ArraySize = 0;
-        arr = new int[0];
     }
 
-    public void Add(int value)
+    // Обробники подій
+    static void OnReplenished(decimal amount)
     {
-        int[] newArr = new int[ArraySize + 1];
-
-        for (int i = 0; i < ArraySize; i++)
-        {
-            newArr[i] = arr[i];
-        }
-
-        newArr[ArraySize] = value;
-        arr = newArr;
-        ArraySize++;
+        WriteLine($"[Подія] Рахунок поповнено на {amount:F2}");
     }
 
-    public int Remove(int index)
+    static void OnSpent(decimal amount)
     {
-        if (index < 0 || index >= ArraySize)
-        {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int removedValue = arr[index];
-        int[] newArr = new int[ArraySize - 1];
-
-        for (int i = 0, j = 0; i < ArraySize; i++)
-        {
-            if (i != index)
-            {
-                newArr[j++] = arr[i];
-            }
-        }
-
-        arr = newArr;
-        ArraySize--;
-        return removedValue;
+        WriteLine($"[Подія] Витрачено {amount:F2}");
     }
 
-    public int Change(int index, int newValue)
+    static void OnCreditStarted(decimal creditUsed)
     {
-        if (index < 0 || index >= ArraySize)
-        {
-            throw new IndexOutOfRangeException("Index is out of range.");
-        }
-
-        int oldValue = arr[index];
-        arr[index] = newValue;
-        return oldValue;
+        WriteLine($"[Подія] Почато використання кредитних коштів, у борг: {creditUsed:F2}");
     }
 
-    public void Show1()
-    { 
-        if (ArraySize == 0)
+    static void OnTargetReached(decimal target)
+    {
+        WriteLine($"[Подія] Досягнуто цільової суми {target:F2}");
+    }
+
+    static void OnPinChanged()
+    {
+        WriteLine("[Подія] PIN змінено");
+    }
+
+    static void SpendMoney(CreditCard card)
+    {
+        Write("PIN: ");
+
+        if (!card.CheckPin(ReadLine() ?? ""))
         {
-            WriteLine("Array is empty.");
+            WriteLine("Помилка: невірний PIN!");
             return;
         }
 
-        for(int i = 0; i < ArraySize; i++)
+        decimal amount = ReadMoney("Сума витрати: ");
+
+        if (!card.Spend(amount))
         {
-            WriteLine(arr[i]);
+            WriteLine("Помилка: недостатньо коштів, кредитний ліміт буде перевищено!");
         }
     }
 
-    public void Show1(string? info)
+    static void ChangePin(CreditCard card)
     {
-        if (string.IsNullOrEmpty(info))
-        { 
-           WriteLine("No info");
-           throw new ArgumentException();
-        }
-        WriteLine(info);
-        Show1();
-    }
-    
+        Write("Поточний PIN: ");
+        string oldPin = ReadLine() ?? "";
 
- public override string ToString()
-    {
-        if (ArraySize == 0) return "[]";
-        return "[" + string.Join(", ", arr) + "]";
-    }
+        Write("Новий PIN (4 цифри): ");
+        string newPin = ReadLine() ?? "";
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is Array1 other)
+        if (!card.ChangePin(oldPin, newPin))
         {
-            if (this.ArraySize != other.ArraySize)
+            WriteLine("Помилка: невірний поточний PIN!");
+        }
+    }
+
+    // Питає суму більше нуля (можна з крапкою або комою)
+    static decimal ReadMoney(string text)
+    {
+        while (true)
+        {
+            Write(text);
+            string input = (ReadLine() ?? "").Replace(',', '.');
+
+            if (decimal.TryParse(input, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal value)
+                && value > 0)
             {
-                return false;
+                return value;
             }
 
-            // Поэлементная проверка
-            for (int i = 0; i < ArraySize; i++)
-            {
-                if (this.arr[i] != other.arr[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            WriteLine("Треба ввести число більше нуля, ще раз.");
         }
-
-        return false;
-    }
-
-    public override int GetHashCode()
-    {
-        HashCode hash = new HashCode();
-        
-        hash.Add(ArraySize);
-        for (int i = 0; i < ArraySize; i++)
-        {
-            hash.Add(arr[i]);
-        }
-        
-        return hash.ToHashCode();
-    }
-
-    public int Less(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"\n--- Checking numbers less than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el < valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is less than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are less than {valueToCompare}\n");
-        return count;
-    }
-
-    public int Greater(int valueToCompare, int[] arr)
-    {
-        int count = 0;
-        WriteLine($"--- Checking numbers greater than {valueToCompare} ---");
-        
-        foreach (int el in arr)
-        {
-            if (el > valueToCompare)
-            {
-                count++;
-                WriteLine($"{el} is bigger than {valueToCompare}");
-            }
-        }
-        WriteLine($"Result: {count} numbers in array are bigger than {valueToCompare}\n");
-        return count;
-    }
-
-      public void InputElements(int how_much)
-    {
-        WriteLine($"Write {how_much} numbers for array:");
-        for (int i = 0; i < how_much; i++)
-        {
-            Write($"Element {i + 1}: ");
-            if (int.TryParse(ReadLine(), out int value))
-            {
-                Add(value); 
-            }
-            else
-            {
-                WriteLine("Invalid input, saved as 0.");
-                Add(0);
-            }
-        }
-    }
-
-
-     public void ShowEven()
-    {
-        WriteLine("\n--- Even numbers in array ---");
-        bool hasEven = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 == 0)
-            {
-                WriteLine(arr[i]);
-                hasEven = true;
-            }
-        }
-        if (!hasEven) WriteLine("No even numbers found.");
-    }
-
-    public void ShowOdd()
-    {
-        WriteLine("\n--- Odd numbers in array ---");
-        bool hasOdd = false;
-        for (int i = 0; i < ArraySize; i++)
-        {
-            if (arr[i] % 2 != 0)
-            {
-                WriteLine(arr[i]);
-                hasOdd = true;
-            }
-        }
-        if (!hasOdd) WriteLine("No odd numbers found.");
     }
 }
 
+class CreditCard
+{
+    private string pin;
+
+    public string Number { get; }
+    public string OwnerName { get; }
+    public DateTime ExpiryDate { get; }
+    public decimal CreditLimit { get; }
+    public decimal Money { get; private set; }
+
+    // Задана сума грошей: при її досягненні після поповнення спрацює подія
+    public decimal Target { get; set; }
+
+    // Події
+    public event Action<decimal>? Replenished;     // поповнення рахунку
+    public event Action<decimal>? Spent;           // витрата коштів
+    public event Action<decimal>? CreditStarted;   // старт використання кредитних коштів
+    public event Action<decimal>? TargetReached;   // досягнення заданої суми
+    public event Action? PinChanged;               // зміна PIN
+
+    public CreditCard(string number, string ownerName, DateTime expiryDate,
+                      string pin, decimal creditLimit, decimal money)
+    {
+        string cleaned = number.Replace(" ", "").Replace("-", "");
+
+        if (cleaned.Length < 13 || cleaned.Length > 19 || !IsDigits(cleaned))
+            throw new ArgumentException("Номер картки має складатися з 13-19 цифр");
+
+        if (!IsLuhnValid(cleaned))
+            throw new ArgumentException("Номер картки не пройшов перевірку за алгоритмом Луна");
+
+        if (string.IsNullOrWhiteSpace(ownerName))
+            throw new ArgumentException("ПІБ власника не може бути порожнім");
+
+        if (new DateTime(expiryDate.Year, expiryDate.Month, 1).AddMonths(1) <= DateTime.Today)
+            throw new ArgumentException("Термін дії картки вже закінчився");
+
+        if (pin.Length != 4 || !IsDigits(pin))
+            throw new ArgumentException("PIN має складатися рівно з 4 цифр");
+
+        if (creditLimit < 0 || money < 0)
+            throw new ArgumentException("Кредитний ліміт і сума грошей не можуть бути від'ємними");
+
+        Number = cleaned;
+        OwnerName = ownerName.Trim();
+        ExpiryDate = expiryDate;
+        this.pin = pin;
+        CreditLimit = creditLimit;
+        Money = money;
+    }
+
+    // Перевірка PIN
+    public bool CheckPin(string enteredPin)
+    {
+        return pin == enteredPin;
+    }
+
+    // Поповнення рахунку
+    public void Replenish(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentException("Сума поповнення має бути більше нуля");
+
+        decimal before = Money;
+        Money += amount;
+
+        Replenished?.Invoke(amount);
+
+        // подія спрацьовує, коли сума вперше стає не меншою за задану
+        if (Target > 0 && before < Target && Money >= Target)
+        {
+            TargetReached?.Invoke(Target);
+        }
+    }
+
+    // Витрата коштів. Можна йти в мінус, але не глибше за кредитний ліміт.
+    // Повертає false, якщо коштів (разом із кредитними) не вистачає.
+    public bool Spend(decimal amount)
+    {
+        if (amount <= 0)
+            throw new ArgumentException("Сума витрати має бути більше нуля");
+
+        if (Money - amount < -CreditLimit)
+        {
+            return false;
+        }
+
+        decimal before = Money;
+        Money -= amount;
+
+        Spent?.Invoke(amount);
+
+        // перший перехід в мінус це старт використання кредитних коштів
+        if (before >= 0 && Money < 0)
+        {
+            CreditStarted?.Invoke(-Money);
+        }
+
+        return true;
+    }
+
+    // Зміна PIN. Повертає false, якщо поточний PIN невірний.
+    public bool ChangePin(string oldPin, string newPin)
+    {
+        if (!CheckPin(oldPin))
+        {
+            return false;
+        }
+
+        if (newPin.Length != 4 || !IsDigits(newPin))
+            throw new ArgumentException("PIN має складатися рівно з 4 цифр");
+
+        pin = newPin;
+
+        PinChanged?.Invoke();
+
+        return true;
+    }
+
+    // Виведення даних (номер приховано, PIN не показуємо)
+    public void Show()
+    {
+        string hidden = new string('*', Number.Length - 4) + Number.Substring(Number.Length - 4);
+
+        WriteLine($"Номер картки: {hidden}");
+        WriteLine($"Власник: {OwnerName}");
+        WriteLine($"Дійсна до: {ExpiryDate:MM/yy}");
+        WriteLine($"Сума грошей: {Money:F2}");
+        WriteLine($"Кредитний ліміт: {CreditLimit:F2}");
+        WriteLine($"Доступно для витрат: {Money + CreditLimit:F2}");
+        WriteLine($"Цільова сума: {Target:F2}");
+    }
+
+    private static bool IsDigits(string text)
+    {
+        foreach (char c in text)
+        {
+            if (c < '0' || c > '9') return false;
+        }
+        return true;
+    }
+
+    // Алгоритм Луна: контрольна сума номера картки
+    private static bool IsLuhnValid(string cardNumber)
+    {
+        int sum = 0;
+        bool doubleDigit = false;
+
+        for (int i = cardNumber.Length - 1; i >= 0; i--)
+        {
+            int digit = cardNumber[i] - '0';
+
+            if (doubleDigit)
+            {
+                digit *= 2;
+
+                if (digit > 9)
+                {
+                    digit -= 9;
+                }
+            }
+
+            sum += digit;
+            doubleDigit = !doubleDigit;
+        }
+
+        return sum % 10 == 0;
+    }
+}
