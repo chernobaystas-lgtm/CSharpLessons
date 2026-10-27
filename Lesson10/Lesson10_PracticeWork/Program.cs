@@ -23,7 +23,7 @@ public interface IBag
 class Program
 {
     static void Main(string[] args)
-    { 
+    {
         IBag myBag = new Bag("Синий", "Adidas", 500.0, 6.0);
 
         if (myBag is Bag bagEvents)
@@ -42,13 +42,13 @@ class Program
 
         myBag.AddItem(book);
         myBag.AddItem(pen);
-        
+
         myBag.AddItem(jacket);
 
         WriteLine("\nСодержимое рюкзака:");
         foreach (var item in myBag.Items)
         {
-            WriteLine($"  -> {item}"); 
+            WriteLine($"  -> {item}");
         }
 
         ReadLine();
@@ -57,39 +57,38 @@ class Program
 
 public enum ItemType
 {
-    BooksAndTextbooks,     
-    WritingInstruments,    
-    MeasuringTools,        
-    MechanicalDevices,     
-    ElectricalDevices,     
-    Clothing,              
-    Other                  
+    BooksAndTextbooks,
+    WritingInstruments,
+    MeasuringTools,
+    MechanicalDevices,
+    ElectricalDevices,
+    Clothing,
+    Other
 }
 
 public enum ItemQuality
 {
-    Poor,     
-    Normal,   
-    Excellent  
+    Poor,
+    Normal,
+    Excellent
 }
 
 public record BagItem(int Index, string Name, ItemType Type, double Weight, double Volume, ItemQuality Quality);
 
 
-// Класс рюкзака, реализующий интерфейс IBag
 public class Bag : IBag
 {
     public string Color { get; set; }
     public string ManufactureName { get; set; }
     public double Weight { get; set; }
-    public double Volume { get; set; } 
-    
+    public double Volume { get; set; }
+
     public BagItem[] Items { get; private set; }
 
     // События
-    public event BagEventHandler OnItemAdded;   
-    public event BagEventHandler OnItemRemoved; 
-    public event BagEventHandler OnBagFull;    
+    public event BagEventHandler OnItemAdded;
+    public event BagEventHandler OnItemRemoved;
+    public event BagEventHandler OnBagFull;
 
     public Bag()
     {
@@ -97,7 +96,7 @@ public class Bag : IBag
         ManufactureName = "Without manufacture";
         Weight = 500.0;
         Volume = 15.0;
-        Items = new BagItem[0]; 
+        Items = new BagItem[0];
     }
 
     public Bag(string color, string manufactureName, double weight, double volume)
@@ -129,7 +128,9 @@ public class Bag : IBag
             return;
         }
 
-        Array.Resize(ref Items, Items.Length + 1);
+        var updatedItems = Items;
+        Array.Resize(ref updatedItems, updatedItems.Length + 1);
+        Items = updatedItems;
         Items[Items.Length - 1] = item;
 
         OnItemAdded?.Invoke($"Предмет '{item.Name}' добавлен.");
@@ -156,7 +157,9 @@ public class Bag : IBag
             Items[i] = Items[i + 1];
         }
 
-        Array.Resize(ref Items, Items.Length - 1);
+        var remainingItems = Items;
+        Array.Resize(ref remainingItems, remainingItems.Length - 1);
+        Items = remainingItems;
         OnItemRemoved?.Invoke($"Предмет '{removedName}' удален.");
     }
 
