@@ -5,128 +5,202 @@ using static System.Convert;
 using static System.Array;
 using static System.Exception;
 using System.Numerics;
+using System.Collections;
 
 class Program
 {
-static void Swap<T>(ref T a, ref T b)
-{
-    T temp = a;
-    a = b;
-    b = temp;
-}
 
-    static void Main(string[] args)
+   static void Main(string[] args)
     {
-        Line<int> line1 = new Line<int>(0, 0, 3, 4);
+        Aquarium oceanarium = new Aquarium(10);
 
-        WriteLine(line1);
-        WriteLine($"Длина отрезка: {line1.GetLength()}");
+        AquariumAnimal fish = new AquariumAnimal(CreatureType.Fish, 5, 4, true, "Акула", true, true, 50000, 150, "Серая");
+        AquariumAnimal crab = new AquariumAnimal(CreatureType.Crustaceans, 10, 2, true, "Краб", true, false, 300, 15, "Красный");
+        AquariumAnimal dolphin = new AquariumAnimal(CreatureType.Fish, 3, 0, false, "Дельфин", true, true, 150000, 200, "Серый");
 
+        oceanarium.AddAnimal(fish);
+        oceanarium.AddAnimal(crab);
+        oceanarium.AddAnimal(dolphin);
 
-        Point<double> p1 = new Point<double>(1.5, 2.0);
-        Point<double> p2 = new Point<double>(4.5, 6.0);
+        int initialPredators = oceanarium.GetPredatorsCount();
 
-        Line<double> line2 = new Line<double>(p1, p2);
-        WriteLine($"\n{line2}");
-
-
-        Point<int> p3 = new Point<int>(6, 8);
-        bool liesOnLine = line1.ContainsPoint(p3);
-
-        WriteLine($"\nЛежит ли точка {p3} на первой прямой? {liesOnLine}");
-    }
-}
-
-public class Point<T> where T : struct, INumber<T>
-{
-    public T X { get; set; }
-    public T Y { get; set; }
-
-    public Point(T x, T y)
-    {
-      X = x;
-      Y = y;
-    }
-
-    public Point()
-    {
-      X = T.Zero;
-      Y = T.Zero;
-    }
-
-    public override string ToString()
-    {
-        return $"({X}; {Y})";
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is Point<T> other)
+        foreach (AquariumAnimal animal in oceanarium)
         {
-            return EqualityComparer<T>.Default.Equals(this.X, other.X) && // x == other.x && y = other.y
-                   EqualityComparer<T>.Default.Equals(this.Y, other.Y);
+            string name = animal.Species;
         }
-        return false;
-    }
 
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(X, Y);
+        oceanarium.RemoveAnimal("Краб");
+
+        int finalPredators = oceanarium.GetPredatorsCount();
+
+        foreach (AquariumAnimal animal in oceanarium)
+        {
+            string name = animal.Species;
+        }
+
+        WriteLine("=== ПРОВЕРКА РАБОТЫ ===");
+        WriteLine($"Найдено хищников в памяти: {initialPredators}");
     }
 }
 
-public class Line<T> where T : struct, INumber<T>
+public enum CreatureType
 {
-    public Point<T> Point1 { get; set; }
-    public Point<T> Point2 { get; set; }
+    Fish,          // Рыбы
+    Crustaceans,   // Ракообразные
+    Amphibia,      // Земноводные
+    Mollusk,       // Моллюски
+    Reptile,       // Рептилии
+    Invertebrate   // Другие беспозвоночные
+}
 
+public class AquariumAnimal
+{
+    // Тот самый enum, который объединяет все твои классы в один!
+    public CreatureType Type { get; set; }
 
+    // Твои 9 параметров
+    public int LimbsCount { get; set; }
+    public int GillsCount { get; set; }
+    public bool CanBreatheUnderWater { get; set; }
+    public string Species { get; set; }
+    public bool IsMarine { get; set; }
+    public bool IsPredator { get; set; }
+    public double Weight { get; set; }
+    public double Length { get; set; }
+    public string Color { get; set; }
 
-    public Line(Point<T> p1, Point<T> p2)
+    public AquariumAnimal()
     {
-        Point1 = p1;
-        Point2 = p2;
+        this.Type = CreatureType.Fish; // по дефолту пусть будет рыбой
+        this.LimbsCount = 0;
+        this.GillsCount = 4;
+        this.CanBreatheUnderWater = true;
+        this.Species = "Неизвестный вид";
+        this.IsMarine = false;
+        this.IsPredator = false;
+        this.Weight = 0.0;
+        this.Length = 0.0;
+        this.Color = "Прозрачный";
     }
 
-    public Line(T x1, T y1, T x2, T y2)
+    public AquariumAnimal(CreatureType type, int limbsCount, int gillsCount, bool canBreatheUnderWater,
+                          string species, bool isMarine, bool isPredator,
+                          double weight, double length, string color)
     {
-        Point1 = new Point<T>(x1, y1);
-        Point2 = new Point<T>(x2, y2);
-    }
-
-    public double GetLength()
-    {
-        //double x1 = ToDouble(Point1.X);
-        //double y1 = ToDouble(Point1.Y);
-        //double x2 = ToDouble(Point2.X);
-        //double y2 = ToDouble(Point2.Y);
-          T dx = Point2.X - Point1.X;
-          T dy = Point2.Y - Point1.Y;
-
-          T myPow = (dx * dx) + (dy *dy);
-
-          double NewmyPow = ToDouble(myPow);
-
-        // Формула: корень из ((x2-x1)^2 + (y2-y1)^2
-
-        return Math.Sqrt(NewmyPow);
-    }
-
-    public bool ContainsPoint(Point<T> p3)
-    {
-        T x1 = Point1.X;
-        T y1 = Point1.Y;
-        T x2 = Point2.X;
-        T y2 = Point2.Y;
-
-        T x3 = p3.X;
-        T y3 = p3.Y;
-
-        return (x3 - x1) * (y2 - y1) - (y3 - y1) * (x2 - x1) == T.Zero;
+        this.Type = type;
+        this.LimbsCount = limbsCount;
+        this.GillsCount = gillsCount;
+        this.CanBreatheUnderWater = canBreatheUnderWater;
+        this.Species = species;
+        this.IsMarine = isMarine;
+        this.IsPredator = isPredator;
+        this.Weight = weight;
+        this.Length = length;
+        this.Color = color;
     }
 
     public override string ToString()
     {
-        return $"Прямая линия через точки {Point1} и {Point2}";
+        string waterType = this.IsMarine ? "Морская" : "Пресноводная";
+        string dietType = this.IsPredator ? "Хищник" : "Мирное существо";
+        string breathInfo = this.CanBreatheUnderWater ? "Дышит под водой" : "Нужен воздух (всплывает)";
+
+        return $"Группа: {this.Type} | Вид: {this.Species}\n" +
+               $"-------------------------------------\n" +
+               $"Параметры: {this.Color} цвет, длина {this.Length} см, вес {this.Weight} г.\n" +
+               $"Анатомия: органов движения: {this.LimbsCount}, количество жабр: {this.GillsCount}.\n" +
+               $"Среда и поведение: {waterType} вода, {dietType}, {breathInfo}.\n";
     }
+}
+
+public class Aquarium : IEnumerable
+{
+    private AquariumAnimal[] _animals;
+    private int _count;
+
+    public Aquarium(int capacity = 100)
+    {
+        this._animals = new AquariumAnimal[capacity];
+        this._count = 0;
+    }
+
+    public void AddAnimal(AquariumAnimal animal)
+    {
+        if (animal == null || this._count >= this._animals.Length) return;
+
+        this._animals[this._count] = animal;
+        this._count++;
+    }
+
+    public bool RemoveAnimal(string species)
+    {
+        int indexToRemove = -1;
+
+        for (int i = 0; i < this._count; i++)
+        {
+            if (this._animals[i].Species.Equals(species, StringComparison.OrdinalIgnoreCase))
+            {
+                indexToRemove = i;
+                break;
+            }
+        }
+
+        if (indexToRemove == -1) return false;
+
+        for (int i = indexToRemove; i < this._count - 1; i++)
+        {
+            this._animals[i] = this._animals[i + 1];
+        }
+
+        this._count--;
+        this._animals[this._count] = null;
+        return true;
+    }
+
+    public AquariumAnimal[] GetAllAnimals()
+    {
+        AquariumAnimal[] result = new AquariumAnimal[this._count];
+        Array.Copy(this._animals, result, this._count);
+        return result;
+    }
+
+    public AquariumAnimal[] GetByCreatureType(CreatureType type)
+    {
+        int size = 0;
+        for (int i = 0; i < this._count; i++)
+        {
+            if (this._animals[i].Type == type) size++;
+        }
+
+        AquariumAnimal[] result = new AquariumAnimal[size];
+        int index = 0;
+        for (int i = 0; i < this._count; i++)
+        {
+            if (this._animals[i].Type == type)
+            {
+                result[index] = this._animals[i];
+                index++;
+            }
+        }
+        return result;
+    }
+
+    public int GetPredatorsCount()
+    {
+        int count = 0;
+        for (int i = 0; i < this._count; i++)
+        {
+            if (this._animals[i].IsPredator) count++;
+        }
+        return count;
+    }
+
+    public System.Collections.IEnumerator GetEnumerator()
+    {
+    for (int i = 0; i < this._count; i++)
+    {
+        yield return this._animals[i];
+    }
+    }
+
 }
