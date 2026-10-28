@@ -37,7 +37,7 @@ static void Swap<T>(ref T a, ref T b)
     }
 }
 
-public class Point<T> where T : INumber<T>
+public class Point<T> where T : struct, INumber<T>
 {
     public T X { get; set; }
     public T Y { get; set; }
@@ -48,14 +48,11 @@ public class Point<T> where T : INumber<T>
       Y = y;
     }
 
-
     public Point()
     {
-      X = default(T);
-      Y = default(T);
+      X = T.Zero;
+      Y = T.Zero;
     }
-
-
 
     public override string ToString()
     {
@@ -66,7 +63,7 @@ public class Point<T> where T : INumber<T>
     {
         if (obj is Point<T> other)
         {
-            return EqualityComparer<T>.Default.Equals(this.X, other.X) &&
+            return EqualityComparer<T>.Default.Equals(this.X, other.X) && // x == other.x && y = other.y
                    EqualityComparer<T>.Default.Equals(this.Y, other.Y);
         }
         return false;
@@ -78,10 +75,12 @@ public class Point<T> where T : INumber<T>
     }
 }
 
-public class Line<T> where T : INumber<T>
+public class Line<T> where T : struct, INumber<T>
 {
     public Point<T> Point1 { get; set; }
     public Point<T> Point2 { get; set; }
+
+
 
     public Line(Point<T> p1, Point<T> p2)
     {
@@ -97,13 +96,20 @@ public class Line<T> where T : INumber<T>
 
     public double GetLength()
     {
-        double x1 = ToDouble(Point1.X);
-        double y1 = ToDouble(Point1.Y);
-        double x2 = ToDouble(Point2.X);
-        double y2 = ToDouble(Point2.Y);
+        //double x1 = ToDouble(Point1.X);
+        //double y1 = ToDouble(Point1.Y);
+        //double x2 = ToDouble(Point2.X);
+        //double y2 = ToDouble(Point2.Y);
+          T dx = Point2.X - Point1.X;
+          T dy = Point2.Y - Point1.Y;
 
-        // Формула: корень из ((x2-x1)^2 + (y2-y1)^2)
-        return Math.Sqrt(Math.Pow(x2 - x1, 2) + Math.Pow(y2 - y1, 2));
+          T myPow = (dx * dx) + (dy *dy);
+
+          double NewmyPow = ToDouble(myPow);
+
+        // Формула: корень из ((x2-x1)^2 + (y2-y1)^2
+
+        return Math.Sqrt(NewmyPow);
     }
 
     public bool ContainsPoint(Point<T> p3)
