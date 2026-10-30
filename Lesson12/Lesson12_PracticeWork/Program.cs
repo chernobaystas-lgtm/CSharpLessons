@@ -6,352 +6,261 @@ using static System.Array;
 using static System.Exception;
 using static System.Collections.ArrayList;
 using System.Collections;
+public struct AuthorName
+{
+    public string? Name { get; set; }
+    public string? LastName { get; set; }
+    public string? SecondName { get; set; }
+
+    public AuthorName(string? name, string? lastName, string? secondName)
+    {
+        Name = name;
+        LastName = lastName;
+        SecondName = secondName;
+    }
+
+    public override string ToString() => $"{LastName} {Name} {SecondName}";
+}
+
+// Рекорд книги
+public record class Book
+{
+    public string Title { get; set; }
+    public AuthorName Author { get; set; }
+    public string Genre { get; set; }
+    public int Year { get; set; }
+
+    public Book(string title, AuthorName author, string genre, int year)
+    {
+        Title = title;
+        Author = author;
+        Genre = genre;
+        Year = year;
+    }
+
+    public override string ToString()
+    {
+        return $"«{Title}» | Автор: {Author} | Жанр: {Genre} | Год: {Year}";
+    }
+}
+
+// Менеджер коллекции на базе LinkedList<T>
+public class BookManager
+{
+    private LinkedList<Book> _books = new LinkedList<Book>();
+
+    // Вставить книгу в начало списка
+    public void AddFirst(Book book) => _books.AddFirst(book);
+
+    // Вставить книгу в конец списка
+    public void AddLast(Book book) => _books.AddLast(book);
+
+    // Вставить книгу в определенную позицию
+    public bool InsertAt(int index, Book book)
+    {
+        if (index < 0 || index > _books.Count) return false;
+        if (index == 0) { AddFirst(book); return true; }
+        if (index == _books.Count) { AddLast(book); return true; }
+
+        var current = _books.First;
+        for (int i = 0; i < index; i++) current = current!.Next;
+
+        _books.AddBefore(current!, book);
+        return true;
+    }
+
+    // Удалить книгу с начала списка
+    public bool RemoveFirst()
+    {
+        if (_books.Count == 0) return false;
+        _books.RemoveFirst();
+        return true;
+    }
+
+    // Удалить книгу с конца списка
+    public bool RemoveLast()
+    {
+        if (_books.Count == 0) return false;
+        _books.RemoveLast();
+        return true;
+    }
+
+    // Удалить книгу из определенной позиции
+    public bool RemoveAt(int index)
+    {
+        if (index < 0 || index >= _books.Count) return false;
+        if (index == 0) return RemoveFirst();
+        if (index == _books.Count - 1) return RemoveLast();
+
+        var current = _books.First;
+        for (int i = 0; i < index; i++) current = current!.Next;
+
+        _books.Remove(current!);
+        return true;
+    }
+
+    // Изменить информацию о книге
+    public bool UpdateBook(int index, Book newDetails)
+    {
+        if (index < 0 || index >= _books.Count) return false;
+
+        var current = _books.First;
+        for (int i = 0; i < index; i++) current = current!.Next;
+
+        current!.Value = newDetails;
+        return true;
+    }
+
+    // Поиск книг по названию
+    public List<Book> SearchByTitle(string title)
+    {
+        List<Book> result = new List<Book>();
+        foreach (var book in _books)
+        {
+            if (book.Title.Contains(title, StringComparison.OrdinalIgnoreCase))
+                result.Add(book);
+        }
+        return result;
+    }
+
+    // Вывод всей библиотеки на экран
+    public void PrintAll()
+    {
+        if (_books.Count == 0)
+        {
+            WriteLine("Библиотека пуста.");
+            return;
+        }
+        int index = 0;
+        foreach (var book in _books)
+        {
+            WriteLine($"[{index}] {book}");
+            index++;
+        }
+    }
+}
 
 class Program
 {
     static void Main(string[] args)
     {
         OutputEncoding = System.Text.Encoding.UTF8;
+        BookManager manager = new BookManager();
 
-        EmployerManager manager = new EmployerManager();
+        // Стартовые дефолтные книги для проверки функционала
+        manager.AddLast(new Book("Кобзарь", new AuthorName("Тарас", "Шевченко", "Григорьевич"), "Поэзия", 1840));
+        manager.AddLast(new Book("Захар Беркут", new AuthorName("Иван", "Франко", "Яковлевич"), "Повесть", 1883));
 
-        Employer emp1 = new Employer(id: 105, name: new FullName("Иван", "Иванов", "Иванович"), role: "Developer", salary: 2500.0, gmail: "ivan@gmail.com");
-        Employer emp2 = new Employer(id: 101, name: new FullName("Петр", "Петров", "Петрович"), role: "Manager", salary: 1800.0, gmail: "petr@gmail.com");
-        Employer emp3 = new Employer(id: 103, name: new FullName("Анна", "Сидорова", "Александровна"), role: "QA Engineer", salary: 2000.0, gmail: "anya@gmail.com");
-
-        manager.AddEmployer(emp1);
-        manager.AddEmployer(emp2);
-        manager.AddEmployer(emp3);
-
-        WriteLine("--- Исходный список сотрудников ---");
-        manager.PrintAll();
-
-        int searchId = 101;
-        Employer? found = manager.SearchById(searchId);
-        WriteLine($"\nПоиск ID {searchId}: {(found != null ? found.ToString() : "Не найден")}");
-
-        manager.SortByIdInsertion();
-        WriteLine("\n--- Список после сортировки по ID ---");
-        manager.PrintAll();
-
-        int idToChange = 103;
-        manager.ChangingEmpInfo(idToChange);
-        WriteLine("\n--- Список после изменения данных ---");
-        manager.PrintAll();
-
-        string targetLastName = "Петров";
-        manager.RemoveEmployer(emp => emp.Name?.LastName == targetLastName);
-        WriteLine($"\n--- Финальный список после удаления ({targetLastName}) ---");
-        manager.PrintAll();
-
-        ReadLine();
-    }
-}
-
-
-public struct FullName
-{
-  public string? Name{get;set;}
-  public string? LastName{get;set;}
-  public string? SecondName{get;set;}
-
-  public FullName(string? Name, string? LastName, string? SecondName)
-  {
-    this.Name = Name;
-    this.LastName = LastName;
-    this.SecondName = SecondName;
-  }
-
-public void Input()
-    {
-        Write("Write name: ");
-        this.Name = ReadLine();
-
-        Write("Write last name: ");
-        this.LastName = ReadLine();
-
-        Write("Write second name: ");
-        this.SecondName = ReadLine();
-    }
-
-    public override string ToString()
-    {
-        return $" Last name: {LastName}, Name: {Name}, Second name: {SecondName}";
-    }
-
-}
-
-
-public record class Employer
-{
-  private int? _Id;
-  private FullName? _Name;
-  private string? _Role;
-
-  private double? _Salary;
-
-  private string? _Gmail;
-
-public Employer()
-    {
-      _Id = 0;
-        _Name = new FullName("No name", "No last name", "No second name");
-        _Role = "Unassigned";
-        _Salary = 0.0;
-        _Gmail = "example@gmail.com";
-    }
-
-    public Employer(FullName? name) : this()
-    {
-        _Name = name;
-    }
-
-    public Employer(FullName? name, string? role) : this(name)
-    {
-        _Role = role;
-    }
-
-    public Employer(FullName? name, string? role, double? salary) : this(name, role)
-    {
-        _Salary = salary;
-    }
-
-    public Employer(FullName? name, string? role, double? salary, string? gmail) : this(name, role, salary)
-    {
-        _Gmail = gmail;
-    }
-       public Employer(FullName? name, string? role, double? salary, string? gmail, int? id) : this(name, role, salary, gmail)
-    {
-          _Id = id;
-    }
-
-    public int? Id => _Id;
-
-    public FullName? Name => _Name;
-    public string? Role => _Role;
-    public double? Salary => _Salary;
-    public string? Gmail => _Gmail;
-
-    public virtual bool Equals(Employer? other)
-    {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
-
-        return _Id == other._Id &&
-               EqualityComparer<FullName?>.Default.Equals(_Name, other._Name) &&
-               _Role == other._Role &&
-               Nullable.Equals(_Salary, other._Salary) &&
-               _Gmail == other._Gmail;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(_Id, _Name, _Role, _Salary, _Gmail);
-    }
-
-    public override string ToString()
-    {
-        return $"ID: [{_Id}] | {_Name} | Role: {_Role} | Salary: {_Salary}$ | Email: {_Gmail}";
-    }
-
-}
-
-public class EmployerManager
-{
-  private List<Employer> _employers = new List<Employer>();
-
-
-public void AddEmployer(Employer employer)
-{
-    if (_employers == null) return;
-    this._employers.Add(employer);
-}
-
-public bool RemoveEmployer(Func<Employer, bool> condition)
-{
-    if (_employers == null || condition == null) return false;
-
-    Employer? target = _employers.Find(new Predicate<Employer>(condition));
-
-    if (target != null)
-    {
-        return _employers.Remove(target);
-    }
-
-    return false;
-}
-
-
-
-public Employer? SearchById(int targetId)
-{
-    foreach (var emp in _employers)
-    {
-        if (emp.Id == targetId)
+        while (true)
         {
-            return emp;
-        }
-    }
+            Clear(); // Полная очистка экрана консоли на каждом шаге цикла
 
-    return null;
-}
+            WriteLine("======================================");
+            WriteLine("       УЧЕТ КНИГ (LinkedList<T>)      ");
+            WriteLine("======================================");
+            manager.PrintAll();
+            WriteLine("======================================");
+            WriteLine("1. Добавить книгу в конец");
+            WriteLine("2. Добавить книгу в начало");
+            WriteLine("3. Вставить книгу в определенную позицию");
+            WriteLine("4. Удалить книгу с начала");
+            WriteLine("5. Удалить книгу с конца");
+            WriteLine("6. Удалить книгу из определенной позиции");
+            WriteLine("7. Изменить информацию о книге");
+            WriteLine("8. Поиск книг по названию");
+            WriteLine("0. Выход");
+            WriteLine("======================================");
+            Write("Выберите пункт меню: ");
 
-public Employer? ChangingEmpInfo(int targetId)
-{
-    for (int i = 0; i < _employers.Count; i++)
-    {
-        if (_employers[i].Id == targetId)
-        {
-
-            string? currentName = _employers[i].Name?.Name;
-            string? currentLastName = _employers[i].Name?.LastName;
-            string? currentSecondName = _employers[i].Name?.SecondName;
-            string? currentRole = _employers[i].Role;
-            double? currentSalary = _employers[i].Salary;
-            string? currentGmail = _employers[i].Gmail;
-            int currentId = _employers[i].Id ?? 0;
-
-
-            WriteLine($"\nСотрудник найден: {_employers[i]}");
-            PrintMenu();
-            WriteLine("Что будем редактировать? ");
-            Write("\nВаш выбор: ");
-            int choice;
-            while (!int.TryParse(ReadLine(), out choice))
-            {
-                Write("Ошибка! Введите корректное число: ");
-            }
-
-            if (choice == 0) return _employers[i];
+            if (!int.TryParse(ReadLine(), out int choice)) continue;
+            if (choice == 0) break;
 
             switch (choice)
             {
                 case 1:
-                    Write("Введите новое имя: ");
-                    currentName = ReadLine();
-                    break;
                 case 2:
-                    Write("Введите новое отчество (Second Name): ");
-                    currentSecondName = ReadLine();
+                    Book newBook = InputBook();
+                    if (choice == 1) manager.AddLast(newBook);
+                    else manager.AddFirst(newBook);
                     break;
+
                 case 3:
-                    Write("Введите новую фамилию (Last Name): ");
-                    currentLastName = ReadLine();
+                    Write("Введите индекс для вставки: ");
+                    int.TryParse(ReadLine(), out int insIdx);
+                    Book insBook = InputBook();
+                    if (!manager.InsertAt(insIdx, insBook)) WriteLine("Ошибка: Неверный индекс.");
+                    WaitKey();
                     break;
+
                 case 4:
-                    Write("Введите новую должность (Role): ");
-                    currentRole = ReadLine();
+                    if (!manager.RemoveFirst()) WriteLine("Ошибка: Список пуст.");
+                    else WriteLine("Книга удалена из начала списка.");
+                    WaitKey();
                     break;
+
                 case 5:
-                    Write("Введите новую зарплату (Salary): ");
-                    double salary;
-                    while (!double.TryParse(ReadLine(), out salary))
-                    {
-                        Write("Ошибка! Введите корректное число для зарплаты: ");
-                    }
-                    currentSalary = salary;
+                    if (!manager.RemoveLast()) WriteLine("Ошибка: Список пуст.");
+                    else WriteLine("Книга удалена из конца списка.");
+                    WaitKey();
                     break;
+
                 case 6:
-                    Write("Введите новый Gmail: ");
-                    currentGmail = ReadLine();
+                    Write("Введите индекс для удаления: ");
+                    int.TryParse(ReadLine(), out int remIdx);
+                    if (!manager.RemoveAt(remIdx)) WriteLine("Ошибка: Неверный индекс.");
+                    else WriteLine("Книга успешно удалена.");
+                    WaitKey();
                     break;
+
                 case 7:
-                    Write("Введите новый ID: ");
-                    while (!int.TryParse(ReadLine(), out currentId))
-                    {
-                        Write("Ошибка! Введите корректное число для ID: ");
-                    }
+                    Write("Введите индекс книги для изменения: ");
+                    int.TryParse(ReadLine(), out int updIdx);
+                    WriteLine("Введите новые характеристики для книги:");
+                    Book updBook = InputBook();
+                    if (!manager.UpdateBook(updIdx, updBook)) WriteLine("Ошибка: Индекс не найден.");
+                    else WriteLine("Информация о книге обновлена.");
+                    WaitKey();
                     break;
-                default:
-                    WriteLine("Неверный пункт меню. Изменения отменены.");
-                    return _employers[i];
+
+                case 8:
+                    Write("Введите название книги для поиска: ");
+                    string search = ReadLine() ?? "";
+                    var found = manager.SearchByTitle(search);
+                    WriteLine("\n--- Результаты поиска ---");
+                    if (found.Count == 0) WriteLine("Книги с таким названием не найдены.");
+                    foreach (var b in found) WriteLine(b);
+                    WaitKey();
+                    break;
             }
-
-            FullName updatedFullName = new FullName(currentName, currentLastName, currentSecondName);
-
-           Employer updatedEmployer = new Employer(updatedFullName, currentRole, currentSalary, currentGmail, currentId);
-
-
-            _employers[i] = updatedEmployer;
-
-            WriteLine("Информация успешно изменена!");
         }
     }
 
-    WriteLine($"Сотрудник с ID {targetId} не найден.");
-    return null;
-}
-
-
-
-  public void PrintMenu()
-  {
-    Write("1.Name \n" +
-    "2. Second Name\n" +
-    "3. Last Name\n" +
-    "4. Role\n" +
-    "5. Salary\n"+
-    "6. Gmail\n" +
-    "7. ID\n" +
-    "0. Back\n"
-    );
-  }
-
-
-// Сортировка сотрудников по возрастанию ID методом вставок (Insertion sort)
-public void SortByIdInsertion()
-{
-    if (_employers.Count <= 1) return;
-
-    for (int i = 1; i < _employers.Count; i++)
+    // Ввод характеристик книги с клавиатуры
+    static Book InputBook()
     {
-        Employer key = _employers[i];
-        int j = i - 1;
+        Write("Название книги: ");
+        string title = ReadLine() ?? "Без названия";
 
-        while (j >= 0 && (_employers[j].Id ?? 0) > (key.Id ?? 0))
-        {
-            _employers[j + 1] = _employers[j];
-            j = j - 1;
-        }
+        Write("Имя автора: ");
+        string name = ReadLine() ?? "";
+        Write("Фамилия автора: ");
+        string lastName = ReadLine() ?? "";
+        Write("Отчество автора: ");
+        string secName = ReadLine() ?? "";
 
-        _employers[j + 1] = key;
+        Write("Жанр книги: ");
+        string genre = ReadLine() ?? "Общий";
+
+        Write("Год издания: ");
+        int.TryParse(ReadLine(), out int year);
+
+        return new Book(title, new AuthorName(name, lastName, secName), genre, year);
     }
 
-    WriteLine("Список сотрудников отсортирован по ID методом Insertion Sort!");
-}
-
-// 1. Вывод ВСЕХ сотрудников (убираем старый PrintAll и заменяем этим)
-public void PrintAll()
-{
-    if (_employers.Count == 0)
+    // Задержка экрана перед следующей очисткой Clear()
+    static void WaitKey()
     {
-        WriteLine("Список сотрудников пуст.");
-        return;
+        WriteLine("\nНажмите любую клавишу для возврата в меню...");
+        ReadKey();
     }
-
-    foreach (var emp in _employers)
-    {
-        if (emp != null)
-        {
-            WriteLine(emp);
-        }
-    }
-}
-
-// 2. Поиск и вывод ОДНОГО конкретного сотрудника по ID
-public void PrintById(int targetId)
-{
-    Employer? emp = SearchById(targetId);
-
-    if (emp != null)
-    {
-        WriteLine($"Найден сотрудник с ID [{targetId}]: {emp}");
-    }
-    else
-    {
-        WriteLine($"Ошибка: Сотрудник с ID [{targetId}] не зарегистрирован в базе.");
-    }
-}
-
-
 }
