@@ -12,69 +12,60 @@ class Program
     {
        OutputEncoding = Encoding.UTF8;
 
-      Random rand = new Random();
-List<int> numbers = new List<int>();
 
-for (int i = 0; i < 50; i++)
+      Student[] students = new Student[]
 {
-    numbers.Add(rand.Next(-100, 101));
+    new Student("Brown", 18, "Oxford"),
+    new Student("Brody", 21, "Cambridge"),
+    new Student("Smith", 22, "Oxford"),
+    new Student("Broson", 25, "Harvard"),
+    new Student("Wilson", 20, "Oxford"),
+    new Student("Taylor", 19, "MIT"),
+    new Student("Brooks", 23, "Oxford")
+};
+
+      foreach (var student in students)
+      {
+          WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+      }
+
+
+      foreach (var student in students.Where(s => s.SecondName.StartsWith("Bro")))
+      {
+          WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+      }
+
+
+      foreach (var student in students.Where(s => s.Age > 20))
+      {
+          WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+      }
+
+var filteredStudents = from student in students
+                       where student.Age > 20 && student.Age < 23
+                       orderby student.Age descending
+                       select student;
+
+WriteLine("\nСтуденты от 20 до 23 (Oxford/Сортировка):");
+foreach (var student in filteredStudents)
+{
+    WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
 }
 
-      foreach (int number in numbers)
-      {
-          WriteLine(number);
-      }
+var oxfordStudents = from student in students
+                     where student.School == "Oxford" && student.Age > 18
+                     orderby student.Age descending
+                     select student;
 
-      var evenNumbers = numbers.Where(n => n % 2 == 0);
-      WriteLine("\nЧетные числа:");
-      foreach (int even in evenNumbers)
-      {
-          WriteLine(even);
-      }
-
-
-      var oddNumbers = numbers.Where(n => n % 2 != 0);
-      WriteLine("\nНечетные числа:");
-      foreach (int odd in oddNumbers)
-      {
-          WriteLine(odd);
-      }
-
-      int start = 10;
-      int end = 30;
-
-var result = from n in numbers
-             where n >= start && n <= end
-             select n;
-
-foreach (var num in result)
+WriteLine("\nСтуденты из Oxford > 18 (сортировка по убыванию возраста):");
+foreach (var student in oxfordStudents)
 {
-    WriteLine(num);
+    WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
 }
 
-
-  var multiplesOfSeven = from n in numbers
-                       where n % 7 == 0
-                       orderby n
-                       select n;
-
-      WriteLine("\nКратные 7:");
-      foreach (var num in multiplesOfSeven)
-      {
-          WriteLine(num);
-      }
-
-
-        var multiplesOfEight = from n in numbers
-                       where n % 8 == 0
-                       orderby n descending
-                       select n;
-
-      WriteLine("\nКратные 8:");
-      foreach (var num in multiplesOfEight)
-      {
-          WriteLine(num);
-      }
 
     }
 }
+
+public record Student(string SecondName, int Age, string School);
+
