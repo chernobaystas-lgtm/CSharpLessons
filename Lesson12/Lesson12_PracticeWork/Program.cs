@@ -1,50 +1,118 @@
-﻿namespace LessonsMainCSharp;
-using System.ComponentModel;
-using static System.Console;
-using static System.Convert;
-using static System.Array;
-using static System.Exception;
-using static System.Collections.ArrayList;
-using System.Collections;
+﻿using System;
+using System.Collections.Generic;
 
 class Program
 {
+    // Організуємо звичайну чергу відвідувачів
+    static Queue<string> RegularQueue = new Queue<string>();
+
     static void Main(string[] args)
     {
-        OutputEncoding = System.Text.Encoding.UTF8;
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        bool running = true;
 
-        EmployerManager manager = new EmployerManager();
+        while (running)
+        {
+            Console.WriteLine("\n--- Симуляція черги в кафе ---");
+            Console.WriteLine("1. Новий відвідувач стає в чергу");
+            Console.WriteLine("2. Звільнився столик (обслуговування)");
+            Console.WriteLine("3. Прийшов відвідувач із резервом часу (позачергово)");
+            Console.WriteLine("4. Показати поточну чергу");
+            Console.WriteLine("5. Вихід");
+            Console.Write("Виберіть дію: ");
 
-        Employer emp1 = new Employer(id: 105, name: new FullName("Иван", "Иванов", "Иванович"), role: "Developer", salary: 2500.0, gmail: "ivan@gmail.com");
-        Employer emp2 = new Employer(id: 101, name: new FullName("Петр", "Петров", "Петрович"), role: "Manager", salary: 1800.0, gmail: "petr@gmail.com");
-        Employer emp3 = new Employer(id: 103, name: new FullName("Анна", "Сидорова", "Александровна"), role: "QA Engineer", salary: 2000.0, gmail: "anya@gmail.com");
+            string choice = Console.ReadLine();
 
-        manager.AddEmployer(emp1);
-        manager.AddEmployer(emp2);
-        manager.AddEmployer(emp3);
+            switch (choice)
+            {
+                case "1":
+                    EnterQueue();
+                    break;
+                case "2":
+                    FreeTable();
+                    break;
+                case "3":
+                    EnterWithReservation();
+                    break;
+                case "4":
+                    ShowQueue();
+                    break;
+                case "5":
+                    running = false;
+                    break;
+                default:
+                    Console.WriteLine("Некоректний вибір. Спробуйте ще раз.");
+                    break;
+            }
+        }
+    }
 
-        WriteLine("--- Исходный список сотрудников ---");
-        manager.PrintAll();
+    // 1. Відвідувачі приходять та потрапляють у чергу, якщо немає вільних місць
+    static void EnterQueue()
+    {
+        Console.Write("Введіть ім'я відвідувача: ");
+        string name = Console.ReadLine().Trim();
 
-        int searchId = 101;
-        Employer? found = manager.SearchById(searchId);
-        WriteLine($"\nПоиск ID {searchId}: {(found != null ? found.ToString() : "Не найден")}");
+        if (string.IsNullOrEmpty(name))
+        {
+            Console.WriteLine("Ім'я не може бути порожнім!");
+            return;
+        }
 
-        manager.SortByIdInsertion();
-        WriteLine("\n--- Список после сортировки по ID ---");
-        manager.PrintAll();
+        RegularQueue.Enqueue(name);
+        Console.WriteLine($"Відвідувач {name} став у чергу.");
+    }
 
-        int idToChange = 103;
-        manager.ChangingEmpInfo(idToChange);
-        WriteLine("\n--- Список после изменения данных ---");
-        manager.PrintAll();
+    // 2. Коли столик стає вільним, перший відвідувач з черги займає його
+    static void FreeTable()
+    {
+        Console.WriteLine("Столик звільнився!");
 
-        string targetLastName = "Петров";
-        manager.RemoveEmployer(emp => emp.Name?.LastName == targetLastName);
-        WriteLine($"\n--- Финальный список после удаления ({targetLastName}) ---");
-        manager.PrintAll();
+        if (RegularQueue.Count > 0)
+        {
+            // Видаляємо першого з черги (FIFO)
+            string visitor = RegularQueue.Dequeue();
+            Console.WriteLine($"[Звичайна черга] Відвідувач {visitor} зайняв вільний столик.");
+        }
+        else
+        {
+            Console.WriteLine("Черга порожня. Вільний столик чекає на нових гостей.");
+        }
+    }
 
-        ReadLine();
+    // 3. Якщо приходить відвідувач, який резервував столик на певний час, він отримує його позачергово
+    static void EnterWithReservation()
+    {
+        Console.Write("Введіть ім'я відвідувача з резервом: ");
+        string name = Console.ReadLine().Trim();
+
+        if (string.IsNullOrEmpty(name)) return;
+
+        Console.Write("Введіть час резерву (наприклад, 18:30): ");
+        string time = Console.ReadLine().Trim();
+
+        // Позачергове обслуговування: відвідувач відразу отримує столик, минаючи чергу RegularQueue
+        Console.WriteLine($"[ПОЗАЧЕРГОВО] Відвідувач {name} прийшов на свій час ({time}) і успішно зайняв зарезервований столик!");
+    }
+
+    // 4. Показати поточний стан черги
+    static void ShowQueue()
+    {
+        if (RegularQueue.Count == 0)
+        {
+            Console.WriteLine("У черзі зараз нікого немає.");
+            return;
+        }
+
+        Console.WriteLine($"\nЛюдей у черзі: {RegularQueue.Count}");
+        Console.WriteLine("Порядок черги (зліва направо — від першого до останнього):");
+
+        // Виводимо елементи черги без її зміни
+        int position = 1;
+        foreach (string visitor in RegularQueue)
+        {
+            Console.WriteLine($"{position}. {visitor}");
+            position++;
+        }
     }
 }
-
