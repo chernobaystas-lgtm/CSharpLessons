@@ -24,8 +24,10 @@ Firm[] firms = new Firm[]
 
 
 // 1. Отримати інформацію про всі фірми.
-var allFirms = from f in firms
-               select f;
+ (from f in firms select f).
+    ToList().ForEach(f => WriteLine(f));
+
+
 
 // 2. Отримати фірми, які мають у назві слово «Food».
 var foodFirms = from f in firms
@@ -81,4 +83,7 @@ var mixedFirms = from f in firms
     }
 }
 
-public record Firm(string Name, DateTime FoundationDate, string Profile, string DirectorFullName, int EmployeesCount, string Address);
+public record Firm(string Name, DateTime FoundationDate, string Profile, string DirectorFullName, int EmployeesCount, string Address)
+{
+
+}
