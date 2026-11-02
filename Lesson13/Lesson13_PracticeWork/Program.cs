@@ -24,60 +24,38 @@ Firm[] firms = new Firm[]
 
 
 // 1. Отримати інформацію про всі фірми.
- (from f in firms select f).
-    ToList().ForEach(f => WriteLine(f));
-
-
+(from f in firms select f).ToList().ForEach(f => WriteLine(f));
 
 // 2. Отримати фірми, які мають у назві слово «Food».
-var foodFirms = from f in firms
-                where f.Name.Contains("Food")
-                select f;
+(from f in firms where f.Name.Contains("Food") select f).ToList().ForEach(f => WriteLine(f));
 
 // 3. Отримати фірми, які працюють у галузі маркетингу.
-var marketingFirms = from f in firms
-                     where f.Profile == "Marketing"
-                     select f;
+(from f in firms where f.Profile == "Marketing" select f).ToList().ForEach(f => WriteLine(f));
 
 // 4. Отримати фірми, які працюють у галузі маркетингу або IT.
-var marketingOrItFirms = from f in firms
-                         where f.Profile == "Marketing" || f.Profile == "IT"
-                         select f;
+(from f in firms where f.Profile == "Marketing" || f.Profile == "IT" select f).ToList().ForEach(f => WriteLine(f));
 
 // 5. Отримати фірми з кількістю працівників більшою, ніж 100.
-var largeFirms = from f in firms
-                 where f.EmployeesCount > 100
-                 select f;
+(from f in firms where f.EmployeesCount > 100 select f).ToList().ForEach(f => WriteLine(f));
 
 // 6. Отримати фірми з кількістю працівників у діапазоні від 100 до 300.
-var midSizeFirms = from f in firms
-                   where f.EmployeesCount >= 100 && f.EmployeesCount <= 300
-                   select f;
+(from f in firms where f.EmployeesCount >= 100 && f.EmployeesCount <= 300 select f).ToList().ForEach(f => WriteLine(f));
 
 // 7. Отримати фірми, які знаходяться в Лондоні.
-var londonFirms = from f in firms
-                  where f.Address == "London"
-                  select f;
+(from f in firms where f.Address == "London" select f).ToList().ForEach(f => WriteLine(f));
 
 // 8. Отримати фірми, в яких прізвище директора White.
-var whiteDirectorFirms = from f in firms
-                         where f.DirectorFullName.EndsWith("White")
-                         select f;
+(from f in firms where f.DirectorFullName.EndsWith("White") select f).ToList().ForEach(f => WriteLine(f));
 
 // 9. Отримати фірми, які засновані більше двох років тому.
-var oldFirms = from f in firms
-               where f.FoundationDate < DateTime.Now.AddYears(-2)
-               select f;
+(from f in firms where f.FoundationDate < DateTime.Now.AddYears(-2) select f).ToList().ForEach(f => WriteLine(f));
 
 // 10. Отримати фірми з дня заснування яких минуло 123 дні.
-var exactAgeFirms = from f in firms
-                    where (DateTime.Now.Date - f.FoundationDate.Date).Days == 123
-                    select f;
+(from f in firms where (DateTime.Now.Date - f.FoundationDate.Date).Days == 123 select f).ToList().ForEach(f => WriteLine(f));
 
 // 11. Отримати фірми, в яких прізвище директора Black і мають у назві фірми слово «White».
-var mixedFirms = from f in firms
-                 where f.DirectorFullName.EndsWith("Black") && f.Name.Contains("White")
-                 select f;
+(from f in firms where f.DirectorFullName.EndsWith("Black") && f.Name.Contains("White") select f).ToList().ForEach(f => WriteLine(f));
+
 
 
     }
