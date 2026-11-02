@@ -14,12 +14,9 @@ class Program
 
         string[] cities = { "Kyiv", "Amsterdam", "London", "Madrid", "Anchorage", "Rome", "Athens", "New York", "Oslo", "Astana", "Norfolk", "Minsk", "Antwerp", "Newark", "Aberdeen", "Nairobi", "Norwich", "Novosibirsk", "Aachen", "Ankara" };
 
-
-        foreach (var city in cities)
-        {
-          WriteLine(city);
-        }
-
+        cities
+        .ToList()
+        .ForEach(city => WriteLine(city));
 
         int targetLength = 6;
 
@@ -32,32 +29,23 @@ class Program
         {
           WriteLine(city);
         }
+        cities
+        .Where(city => city.StartsWith("a", StringComparison.OrdinalIgnoreCase))
+        .ToList()
+        .ForEach(city => WriteLine(city));
 
-        foreach (var city in cities)
-        {
-            if (city.StartsWith("A"))
-            {
-                WriteLine(city);
-            }
-        }
 
-        foreach (var city in cities)
-        {
-            if (city.EndsWith("M"))
-            {
-                WriteLine(city);
-            }
-        }
+        cities
+        .Where(city => city.EndsWith("m", StringComparison.OrdinalIgnoreCase))
+        .ToList()
+        .ForEach(city => WriteLine(city));
 
-        foreach (var city in cities)
-        {
-            if (city.StartsWith("N") && city.EndsWith("K"))
-            {
-                WriteLine(city);
-            }
+        cities
+        .Where(city => city.StartsWith("n", StringComparison.OrdinalIgnoreCase) && city.EndsWith("k", StringComparison.OrdinalIgnoreCase))
+        .ToList()
+        .ForEach(city => WriteLine(city));
         }
 
 
 
     }
-}
