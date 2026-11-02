@@ -26,19 +26,19 @@ class Program
 
       foreach (var student in students)
       {
-          WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+          WriteLine(student.ToString());
       }
 
 
       foreach (var student in students.Where(s => s.SecondName.StartsWith("Bro")))
       {
-          WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+          WriteLine(student.ToString());
       }
 
 
       foreach (var student in students.Where(s => s.Age > 20))
       {
-          WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+          WriteLine(student.ToString());
       }
 
 var filteredStudents = from student in students
@@ -49,7 +49,7 @@ var filteredStudents = from student in students
 WriteLine("\nСтуденты от 20 до 23 (Oxford/Сортировка):");
 foreach (var student in filteredStudents)
 {
-    WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+    WriteLine(student.ToString());
 }
 
 var oxfordStudents = from student in students
@@ -60,12 +60,18 @@ var oxfordStudents = from student in students
 WriteLine("\nСтуденты из Oxford > 18 (сортировка по убыванию возраста):");
 foreach (var student in oxfordStudents)
 {
-    WriteLine($"Student: {student.SecondName}, Age: {student.Age}, School: {student.School}");
+    WriteLine(student.ToString());
 }
 
 
     }
 }
 
-public record Student(string SecondName, int Age, string School);
+public record Student(string SecondName, int Age, string School)
+{
+  public override string ToString()
+  {
+      return $"Student: {SecondName}, Age: {Age}, School: {School}";
+  }
+}
 
