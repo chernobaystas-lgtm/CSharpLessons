@@ -12,69 +12,30 @@ class Program
     {
        OutputEncoding = Encoding.UTF8;
 
-      Random rand = new Random();
-List<int> numbers = new List<int>();
+int[] array1 = { 1, 2, 2, 3, 4, 5, 5 };
+int[] array2 = { 3, 4, 6, 7 };
 
-for (int i = 0; i < 50; i++)
-{
-    numbers.Add(rand.Next(-100, 101));
-}
+var difference = from num1 in array1
+                 where !(from num2 in array2 select num2).Contains(num1)
+                 select num1;
+ WriteLine($"Різниця: {string.Join(", ", difference)}");
 
-      foreach (int number in numbers)
-      {
-          WriteLine(number);
-      }
+var intersection = from num1 in array1
+                   from num2 in array2
+                   where num1 == num2
+                   select num1;
+ WriteLine($"Перетин: {string.Join(", ", intersection)}");
 
-      var evenNumbers = numbers.Where(n => n % 2 == 0);
-      WriteLine("\nЧетные числа:");
-      foreach (int even in evenNumbers)
-      {
-          WriteLine(even);
-      }
+var union = from num in (from n1 in array1 select n1).Concat(from n2 in array2 select n2)
+            group num by num into g
+            select g.Key;
+ WriteLine($"Об'єднання: {string.Join(", ", union)}");
 
+var distinctArray1 = from num in array1
+                     group num by num into g
+                     select g.Key;
+ WriteLine($"Перший масив без повторень: {string.Join(", ", distinctArray1)}");
 
-      var oddNumbers = numbers.Where(n => n % 2 != 0);
-      WriteLine("\nНечетные числа:");
-      foreach (int odd in oddNumbers)
-      {
-          WriteLine(odd);
-      }
-
-      int start = 10;
-      int end = 30;
-
-var result = from n in numbers
-             where n >= start && n <= end
-             select n;
-
-foreach (var num in result)
-{
-    WriteLine(num);
-}
-
-
-  var multiplesOfSeven = from n in numbers
-                       where n % 7 == 0
-                       orderby n
-                       select n;
-
-      WriteLine("\nКратные 7:");
-      foreach (var num in multiplesOfSeven)
-      {
-          WriteLine(num);
-      }
-
-
-        var multiplesOfEight = from n in numbers
-                       where n % 8 == 0
-                       orderby n descending
-                       select n;
-
-      WriteLine("\nКратные 8:");
-      foreach (var num in multiplesOfEight)
-      {
-          WriteLine(num);
-      }
 
     }
 }
