@@ -12,69 +12,41 @@ class Program
     {
        OutputEncoding = Encoding.UTF8;
 
-      Random rand = new Random();
-List<int> numbers = new List<int>();
+       int[] numbers = { 121, 75, 81, 5, 19, 43, -12, 90, 99, 101 };
 
-for (int i = 0; i < 50; i++)
+
+int GetSumOfDigits(int number)
 {
-    numbers.Add(rand.Next(-100, 101));
-}
+    string digits = Math.Abs(number).ToString();
 
-      foreach (int number in numbers)
-      {
-          WriteLine(number);
-      }
+    int sum = digits.Sum(ch => ch - '0');
 
-      var evenNumbers = numbers.Where(n => n % 2 == 0);
-      WriteLine("\nЧетные числа:");
-      foreach (int even in evenNumbers)
-      {
-          WriteLine(even);
-      }
-
-
-      var oddNumbers = numbers.Where(n => n % 2 != 0);
-      WriteLine("\nНечетные числа:");
-      foreach (int odd in oddNumbers)
-      {
-          WriteLine(odd);
-      }
-
-      int start = 10;
-      int end = 30;
-
-var result = from n in numbers
-             where n >= start && n <= end
-             select n;
-
-foreach (var num in result)
-{
-    WriteLine(num);
+    return sum;
 }
 
 
-  var multiplesOfSeven = from n in numbers
-                       where n % 7 == 0
-                       orderby n
-                       select n;
-
-      WriteLine("\nКратные 7:");
-      foreach (var num in multiplesOfSeven)
-      {
-          WriteLine(num);
-      }
+var sortBySumAsc = from n in numbers
+                   orderby GetSumOfDigits(n)
+                   select n;
 
 
-        var multiplesOfEight = from n in numbers
-                       where n % 8 == 0
-                       orderby n descending
-                       select n;
+var sortBySumDesc = from n in numbers
+                    orderby GetSumOfDigits(n) descending
+                    select n;
 
-      WriteLine("\nКратные 8:");
-      foreach (var num in multiplesOfEight)
-      {
-          WriteLine(num);
-      }
+
+WriteLine("\nСортировка по возрастанию суммы цифр:");
+foreach (var n in sortBySumAsc)
+{
+    WriteLine($"{n} (сумма цифр: {GetSumOfDigits(n)})");
+}
+
+WriteLine("\nСортировка по убыванию суммы цифр:");
+foreach (var n in sortBySumDesc)
+{
+    WriteLine($"{n} (сумма цифр: {GetSumOfDigits(n)})");
+}
+
 
     }
 }
