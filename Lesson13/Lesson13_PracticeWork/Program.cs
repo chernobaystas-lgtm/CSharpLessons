@@ -12,69 +12,52 @@ class Program
     {
        OutputEncoding = Encoding.UTF8;
 
-      Random rand = new Random();
-List<int> numbers = new List<int>();
-
-for (int i = 0; i < 50; i++)
-{
-    numbers.Add(rand.Next(-100, 101));
-}
-
-      foreach (int number in numbers)
-      {
-          WriteLine(number);
-      }
-
-      var evenNumbers = numbers.Where(n => n % 2 == 0);
-      WriteLine("\nЧетные числа:");
-      foreach (int even in evenNumbers)
-      {
-          WriteLine(even);
-      }
+        string[] cities = { "Kyiv", "Amsterdam", "London", "Madrid", "Anchorage", "Rome", "Athens", "New York", "Oslo", "Astana", "Norfolk", "Minsk", "Antwerp", "Newark", "Aberdeen", "Nairobi", "Norwich", "Novosibirsk", "Aachen", "Ankara" };
 
 
-      var oddNumbers = numbers.Where(n => n % 2 != 0);
-      WriteLine("\nНечетные числа:");
-      foreach (int odd in oddNumbers)
-      {
-          WriteLine(odd);
-      }
-
-      int start = 10;
-      int end = 30;
-
-var result = from n in numbers
-             where n >= start && n <= end
-             select n;
-
-foreach (var num in result)
-{
-    WriteLine(num);
-}
+        foreach (var city in cities)
+        {
+          WriteLine(city);
+        }
 
 
-  var multiplesOfSeven = from n in numbers
-                       where n % 7 == 0
-                       orderby n
-                       select n;
+        int targetLength = 6;
 
-      WriteLine("\nКратные 7:");
-      foreach (var num in multiplesOfSeven)
-      {
-          WriteLine(num);
-      }
+        var filteredCities = from c in cities
+                     where c.Length == targetLength
+                     select c;
+
+        WriteLine($"\nМіста з довжиною назви {targetLength}:");
+        foreach (var city in filteredCities)
+        {
+          WriteLine(city);
+        }
+
+        foreach (var city in cities)
+        {
+            if (city.StartsWith("A"))
+            {
+                WriteLine(city);
+            }
+        }
+
+        foreach (var city in cities)
+        {
+            if (city.EndsWith("M"))
+            {
+                WriteLine(city);
+            }
+        }
+
+        foreach (var city in cities)
+        {
+            if (city.StartsWith("N") && city.EndsWith("K"))
+            {
+                WriteLine(city);
+            }
+        }
 
 
-        var multiplesOfEight = from n in numbers
-                       where n % 8 == 0
-                       orderby n descending
-                       select n;
-
-      WriteLine("\nКратные 8:");
-      foreach (var num in multiplesOfEight)
-      {
-          WriteLine(num);
-      }
 
     }
 }
