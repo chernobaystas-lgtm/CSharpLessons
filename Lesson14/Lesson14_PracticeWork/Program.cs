@@ -14,26 +14,31 @@ class Program
        InputEncoding = Encoding.UTF8;
 
 
-       List<int> numbers = new() {19, 3, -2,0,  1, 29,-12,381,2,-1,23,23,45,12,56,54,-31, 1000, -902, 1400};
+ string[] lastNames = { "Smith", "Williams", "Brown", "Orange", "Taylor", "Fox", "Kennedy" };
 
-        long totalProduct = numbers.Aggregate((acc, n) => acc * n);
-        WriteLine("Total Product: " + totalProduct + "\n");
+WriteLine(string.Join(", ", lastNames));
 
 
-        WriteLine("Count: " + numbers.Count() + "\n");
+bool allMoreThan3 = lastNames.All(name => name.Length > 3);
+WriteLine($"Чи всі прізвища мають довжину > 3 символів: {allMoreThan3}");
 
-        int count = numbers.Count(x => x % 9 == 0);
-        WriteLine("Count of multiples of 9: " + count + "\n");
+bool allBetween3And10 = lastNames.All(name => name.Length > 3 && name.Length < 10);
+WriteLine($"Чи всі прізвища мають довжину від 4 до 9 символів: {allBetween3And10}");
 
-        int countandbigger = numbers.Count(x => x % 7 == 0 && x > 945);
-        WriteLine("Count of multiples of 7 and greater than 945: " + countandbigger + "\n");
+bool anyStartsWithW = lastNames.Any(name => name.StartsWith("W", StringComparison.OrdinalIgnoreCase));
+WriteLine($"Чи є хоча б одне прізвище на літеру 'W': {anyStartsWithW}");
 
-        WriteLine("Sum: " + numbers.Sum() + "\n");
+bool anyEndsWithY = lastNames.Any(name => name.EndsWith("Y", StringComparison.OrdinalIgnoreCase));
+WriteLine($"Чи є хоча б одне прізвище, що закінчується на 'Y': {anyEndsWithY}");
 
-        WriteLine("Sum of even numbers: " + numbers.Where(x => x % 2 == 0).Sum() + "\n");
+bool containsOrange = lastNames.Contains("Orange");
+WriteLine($"Чи є у масиві прізвище 'Orange': {containsOrange}");
 
-        WriteLine("Minimum: " + numbers.Min() + "\n");
-        WriteLine("Maximum: " + numbers.Max() + "\n");
-        WriteLine("Average: " + numbers.Average() + "\n");
+string? firstLength6 = lastNames.FirstOrDefault(name => name.Length == 6);
+WriteLine($"Перше прізвище з довжиною 6: {firstLength6 ?? "Не знайдено"}");
+
+string? lastLessThan15 = lastNames.LastOrDefault(name => name.Length < 15);
+WriteLine($"Останнє прізвище з довжиною < 15: {lastLessThan15 ?? "Не знайдено"}");
+
     }
 }
