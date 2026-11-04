@@ -14,26 +14,20 @@ class Program
        InputEncoding = Encoding.UTF8;
 
 
-       List<int> numbers = new() {19, 3, -2,0,  1, 29,-12,381,2,-1,23,23,45,12,56,54,-31, 1000, -902, 1400};
+       List<int> numbers = new() {19, 3, -2,0,12,12,1000,-3,  1, 29,-12,381,2,-1,23,23,45,12,56,54,-31, 1000, -902, 1400};
 
-        long totalProduct = numbers.Aggregate((acc, n) => acc * n);
-        WriteLine("Total Product: " + totalProduct + "\n");
+      var howManyNumbers = numbers.GroupBy(x =>x).Select(g => new { Value = g.Key, Count = g.Count() }).Where(x => x.Count > 1).OrderByDescending(x => x.Count);
+      howManyNumbers.ToList().ForEach(n => WriteLine($"Value: {n.Value} - Count: {n.Count}"));
 
+      Write("\n");
 
-        WriteLine("Count: " + numbers.Count() + "\n");
+      var howManyNumbers2 = numbers.GroupBy(x =>x).Select(g => new { Value = g.Key, Count = g.Count() }).Where(x => x.Count > 1 && x.Value % 2 == 0).OrderByDescending(x => x.Count);
+      howManyNumbers2.ToList().ForEach(n => WriteLine($"Value: {n.Value} - Count: {n.Count}"));
 
-        int count = numbers.Count(x => x % 9 == 0);
-        WriteLine("Count of multiples of 9: " + count + "\n");
+      int evenNumbers = numbers.Count(x => x % 2 == 0);
+      WriteLine($"Even numbers: {evenNumbers}");
 
-        int countandbigger = numbers.Count(x => x % 7 == 0 && x > 945);
-        WriteLine("Count of multiples of 7 and greater than 945: " + countandbigger + "\n");
-
-        WriteLine("Sum: " + numbers.Sum() + "\n");
-
-        WriteLine("Sum of even numbers: " + numbers.Where(x => x % 2 == 0).Sum() + "\n");
-
-        WriteLine("Minimum: " + numbers.Min() + "\n");
-        WriteLine("Maximum: " + numbers.Max() + "\n");
-        WriteLine("Average: " + numbers.Average() + "\n");
+      int oddNumbers = numbers.Count(x => x % 2 != 0);
+      WriteLine($"Odd numbers: {oddNumbers}");
     }
 }
