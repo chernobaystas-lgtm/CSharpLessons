@@ -14,26 +14,57 @@ class Program
        InputEncoding = Encoding.UTF8;
 
 
-       List<int> numbers = new() {19, 3, -2,0,  1, 29,-12,381,2,-1,23,23,45,12,56,54,-31, 1000, -902, 1400};
+int[] numbers = { 1, 2, 8, 12, 15, 4, 2, 7, 9, 15, 5 };
 
-        long totalProduct = numbers.Aggregate((acc, n) => acc * n);
-        WriteLine("Total Product: " + totalProduct + "\n");
+WriteLine("Вхідний масив: " + string.Join(" ", numbers));
+
+// ==========================================
+// 1 ВАРІАНТ — Через LINQ GroupBy (Групування)
+// ==========================================
+int groupIndex = 0;
+
+int maxLength1 = numbers
+    .Select((n, i) => new
+    {
+        Number = n,
+        // Якщо це перший елемент або він більший за попередній — залишаємо поточну групу.
+        // Якщо число зменшилось або рівне — створюємо нову групу (++groupIndex)
+        Group = (i == 0 || n > numbers[i - 1]) ? groupIndex : ++groupIndex
+    })
+    .GroupBy(pair => pair.Group)
+    .Select(group => group.Count())
+    .DefaultIfEmpty(0)
+    .Max();
+
+WriteLine($"\n[Варіант 1] Довжина найбільшої зростаючої послідовності: {maxLength1}");
 
 
-        WriteLine("Count: " + numbers.Count() + "\n");
+// ==========================================
+// 2 ВАРІАНТ — Через LINQ Aggregate
+// ==========================================
 
-        int count = numbers.Count(x => x % 9 == 0);
-        WriteLine("Count of multiples of 9: " + count + "\n");
+// Накопичуємо стан у вигляді anonymous object:
+// Current (поточна довжина), Max (максимальна довжина), Prev (попереднє число)
+var result = numbers.Aggregate(
+    new { Current = 0, Max = 0, Prev = int.MinValue },
+    (state, n) =>
+    {
+        // Якщо це старт (Current == 0) або поточне число більше за попереднє
+        bool isIncreasing = state.Current == 0 || n > state.Prev;
 
-        int countandbigger = numbers.Count(x => x % 7 == 0 && x > 945);
-        WriteLine("Count of multiples of 7 and greater than 945: " + countandbigger + "\n");
+        // Збільшуємо лічильник або скидаємо його до 1 (починаємо нову послідовність)
+        int nextCurrent = isIncreasing ? state.Current + 1 : 1;
 
-        WriteLine("Sum: " + numbers.Sum() + "\n");
+        return new
+        {
+            Current = nextCurrent,
+            Max = Math.Max(state.Max, nextCurrent),
+            Prev = n
+        };
+    }
+);
 
-        WriteLine("Sum of even numbers: " + numbers.Where(x => x % 2 == 0).Sum() + "\n");
+WriteLine($"[Варіант 2] Довжина найбільшої зростаючої послідовності: {result.Max}");
 
-        WriteLine("Minimum: " + numbers.Min() + "\n");
-        WriteLine("Maximum: " + numbers.Max() + "\n");
-        WriteLine("Average: " + numbers.Average() + "\n");
     }
 }
