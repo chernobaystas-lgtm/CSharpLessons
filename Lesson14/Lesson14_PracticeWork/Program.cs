@@ -14,26 +14,30 @@ class Program
        InputEncoding = Encoding.UTF8;
 
 
-       List<int> numbers = new() {19, 3, -2,0,  1, 29,-12,381,2,-1,23,23,45,12,56,54,-31, 1000, -902, 1400};
+      int[] numbers = { 1, 2, 8, -6, 4, 2, 7, 9, 16, 5 };
 
-        long totalProduct = numbers.Aggregate((acc, n) => acc * n);
-        WriteLine("Total Product: " + totalProduct + "\n");
+      int groupIndex = 0;
+
+      var longestEvenGroup = numbers
+    .Select(n => new { Number = n, Group = (n % 2 == 0) ? groupIndex : ++groupIndex })
+    .Where(pair => pair.Number % 2 == 0)
+    .GroupBy(pair => pair.Group)
+    .OrderByDescending(group => group.Count())
+    .FirstOrDefault();
+
+if (longestEvenGroup != null)
+{
+    int[] resultSequence = longestEvenGroup.Select(pair => pair.Number).ToArray();
+    int maxLength = resultSequence.Length;
+
+    WriteLine($"\nДовжина найбільшої парної послідовності {maxLength}. Послідовність:");
+    WriteLine(string.Join(" ", resultSequence));
+}
+else
+{
+    WriteLine("\nПарних чисел у масиві не знайдено.");
+}
 
 
-        WriteLine("Count: " + numbers.Count() + "\n");
-
-        int count = numbers.Count(x => x % 9 == 0);
-        WriteLine("Count of multiples of 9: " + count + "\n");
-
-        int countandbigger = numbers.Count(x => x % 7 == 0 && x > 945);
-        WriteLine("Count of multiples of 7 and greater than 945: " + countandbigger + "\n");
-
-        WriteLine("Sum: " + numbers.Sum() + "\n");
-
-        WriteLine("Sum of even numbers: " + numbers.Where(x => x % 2 == 0).Sum() + "\n");
-
-        WriteLine("Minimum: " + numbers.Min() + "\n");
-        WriteLine("Maximum: " + numbers.Max() + "\n");
-        WriteLine("Average: " + numbers.Average() + "\n");
     }
 }
