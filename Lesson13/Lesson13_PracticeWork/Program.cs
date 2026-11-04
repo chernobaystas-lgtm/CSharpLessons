@@ -11,7 +11,7 @@ class Program
     static void Main(string[] args)
     {
        OutputEncoding = Encoding.UTF8;
-
+       InputEncoding = Encoding.UTF8;
       Random rand = new Random();
 List<int> numbers = new List<int>();
 
