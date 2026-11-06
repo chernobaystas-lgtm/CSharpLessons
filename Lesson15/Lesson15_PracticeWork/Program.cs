@@ -32,7 +32,7 @@ class Program
 
     static void CreateAndForgetFilm()
     {
-        Film movie2 = Film.Create("Аватар", 2009, "Джеймс Кэмерон", DateTime.Now, "Фантастика");
+        Film movie2 = Film.Create("Nu ochen krutoi film", 2025, "Bakster", DateTime.Now, "Block Baster");
         WriteLine($"Создали второй фильм внутри метода: {movie2.ToString()}");
     }
 }
