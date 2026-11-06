@@ -11,12 +11,33 @@ class Program
 {
     static void Main(string[] args)
     {
-       OutputEncoding = Encoding.UTF8;
+        OutputEncoding = Encoding.UTF8;
 
+        using (Film movie1 = Film.Create("Інтерстеллар", 2014, "Кристофер Нолан", DateTime.Now, "Фантастика"))
+        {
+            WriteLine($"Успешно создали первый фильм: {movie1.ToString()}");
+            WriteLine("Сейчас блок using закроется...");
+        }
 
+        CreateAndForgetFilm();
 
+        WriteLine("Объект потерял ссылку и просто брошен в памяти.");
+        WriteLine("Принудительно будим Сборщик мусора (GC.Collect)...");
+
+        Collect();
+        WaitForPendingFinalizers();
+
+        WriteLine("\n=== Сборка мусора завершена, программа выходит из Main ===");
+    }
+
+    static void CreateAndForgetFilm()
+    {
+        Film movie2 = Film.Create("Аватар", 2009, "Джеймс Кэмерон", DateTime.Now, "Фантастика");
+        WriteLine($"Создали второй фильм внутри метода: {movie2.ToString()}");
     }
 }
+
+
 
 
 class Film : IDisposable
@@ -63,11 +84,6 @@ class Film : IDisposable
   {
     return HashCode.Combine(_title, _year, _director, _time, _genre);
   }
-
-  public void Dispose()
-  {
-  }
-
 
 public static Film Create(string title, int year, string director, DateTime time, string genre)
 {
@@ -131,6 +147,41 @@ public void input()
         }
     }
 }
+
+
+private bool _disposed = false;
+
+~Film()
+{
+    Dispose(false);
+}
+
+public void Dispose()
+{
+    Dispose(true);
+    SuppressFinalize(this);
+}
+
+protected virtual void Dispose(bool disposing)
+{
+    if (_disposed) return;
+
+    if (disposing)
+    {
+        WriteLine($"[Dispose]: Керовані ресурси для фільму \"{_title}\" успішно звільнено та вилучено з пам'яті.");
+
+        _title = null;
+        _director = null;
+        _genre = null;
+    }
+    else
+    {
+        WriteLine("[Фіналізатор]: Об'єкт знищено автоматично збирачем сміття (GC).");
+    }
+
+    _disposed = true;
+}
+
 
 
 }
