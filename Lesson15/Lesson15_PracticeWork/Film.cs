@@ -13,7 +13,7 @@ class Film : IDisposable
   private string? _title{get;set;}
   private int? _year{get;set;}
   private string? _director{get;set;}
-  private DateTime? _time{get;set;}
+  private DateTime? _time{get;set;} //Timespan
   private string? _genre{get;set;}
 
   public Film()
