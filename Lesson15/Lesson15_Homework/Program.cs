@@ -4,6 +4,8 @@ using System.Text;
 using static System.Console;
 using System.Linq;
 using static System.GC;
+using System.Diagnostics;
+
 
 class Program
 {
@@ -11,22 +13,39 @@ class Program
     {
         OutputEncoding = Encoding.UTF8;
 
-        WriteLine("=== ТЕСТ ЗАВДАННЯ 1: СТВОРЕННЯ ОБ'ЄКТА ТА РОБОТА ДЕСТРУКТОРА ===");
+        WriteLine("=== ЗАВДАННЯ 4: КЕРУВАННЯ ПАМ'ЯТТЮ ТА ПОКОЛІННЯМИ ===");
 
-        // Локальний блок: створюємо об'єкт всередині дужок, щоб він втратив посилання
-        {
-            Play temporaryPlay = Play.Create("Лісова Пісня", "Леся Українка", "Драма", 1911);
-            WriteLine($"Тимчасовий об'єкт успішно створено: {temporaryPlay.ToString()}");
-            WriteLine("Виходимо з блоку, втрачаючи посилання на об'єкт...");
-        }
+        // Запуск підрахунку часу до збирання сміття
+        Stopwatch timer = new Stopwatch();
+        timer.Start();
 
-        WriteLine("\nОб'єкт залишився без посилань у пам'яті.");
-        WriteLine("Примусово кличемо Сборщик мусора (GC) для активації деструктора...");
+        MemoryAllocator allocator = new MemoryAllocator();
+        allocator.AllocateMemory();
 
-        // Будимо збирач сміття (завдяки твоїм using static викликаємо напряму)
+        timer.Stop();
+        WriteLine($"Час виділення пам'яті: {timer.ElapsedMilliseconds} мс");
+
+        // Визначаємо покоління об'єкта одразу після створення (має бути 0)
+        WriteLine($"Покоління масиву після створення: Покоління {allocator.GetArrayGeneration()}");
+
+        WriteLine("\nВикликаємо збирач сміття (GC.Collect)...");
+        // Викликаємо збирач сміття
         Collect();
         WaitForPendingFinalizers();
 
-        WriteLine("\n=== Тестування Завдання 1 завершено ===");
+        // Перевіряємо, чи перемістився об'єкт у старше покоління (має стати 1)
+        WriteLine($"Покоління масиву після збирання сміття: Покоління {allocator.GetArrayGeneration()}");
+
+        WriteLine("\nЯвно звільняємо ресурси через Dispose...");
+
+        // Заміряємо швидкість очищення ресурсів після збирання сміття
+        timer.Restart();
+
+        allocator.Dispose();
+
+        timer.Stop();
+        WriteLine($"Час очищення пам'яті: {timer.ElapsedMilliseconds} мс");
+
+        WriteLine("\n=== Тестування Завдання 4 завершено ===");
     }
 }
