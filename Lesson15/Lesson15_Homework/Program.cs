@@ -1,4 +1,5 @@
-﻿using System;
+﻿namespace LessonsMainCSharp;
+using System;
 using System.Collections;
 using System.Text;
 using static System.Console;
@@ -11,22 +12,15 @@ class Program
     {
         OutputEncoding = Encoding.UTF8;
 
-        WriteLine("=== ТЕСТ ЗАВДАННЯ 1: СТВОРЕННЯ ОБ'ЄКТА ТА РОБОТА ДЕСТРУКТОРА ===");
+        WriteLine("=== ТЕСТ ЗАВДАННЯ 2: ВИКЛИК МЕТОДУ DISPOSE ЧЕРЕЗ USING ===");
 
-        // Локальний блок: створюємо об'єкт всередині дужок, щоб він втратив посилання
+        // Тестування коректної роботи класу за допомогою блоку using
+        using (Shop myShop = Shop.Create("Сільпо", "вул. Хрещатик, 1", "Продовольчий"))
         {
-            Play temporaryPlay = Play.Create("Лісова Пісня", "Леся Українка", "Драма", 1911);
-            WriteLine($"Тимчасовий об'єкт успішно створено: {temporaryPlay.ToString()}");
-            WriteLine("Виходимо з блоку, втрачаючи посилання на об'єкт...");
-        }
+            WriteLine($"Об'єкт успішно створено: {myShop.ToString()}");
+            WriteLine("Зараз блок using завершиться...");
+        } // <- Тут автоматично викликається Dispose()
 
-        WriteLine("\nОб'єкт залишився без посилань у пам'яті.");
-        WriteLine("Примусово кличемо Сборщик мусора (GC) для активації деструктора...");
-
-        // Будимо збирач сміття (завдяки твоїм using static викликаємо напряму)
-        Collect();
-        WaitForPendingFinalizers();
-
-        WriteLine("\n=== Тестування Завдання 1 завершено ===");
+        WriteLine("\n=== Тестування Завдання 2 завершено ===");
     }
 }
