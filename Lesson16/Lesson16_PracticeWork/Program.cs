@@ -6,9 +6,6 @@ class Program
   static void Main(string[] args)
   {
     OutputEncoding = Encoding.UTF8;
-    string? FilePart1;
-    string? DirectoryPath;
-    string? DirectoryPath2;
 
     while (true)
     {
