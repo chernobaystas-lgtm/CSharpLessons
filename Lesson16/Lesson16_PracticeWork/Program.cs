@@ -4,45 +4,61 @@
 class Program
 {
   static void Main(string[] args)
-  {
-    OutputEncoding = Encoding.UTF8;
-
-    while (true)
     {
-      Write("Введіть шлях до оригінальної папки: ");
-      string? directoryPath = ReadLine();
+        Console.OutputEncoding = Encoding.UTF8;
 
-      Write("Введіть шлях, куди потрібно перемістити: ");
-      string? directoryPath2 = ReadLine();
+        while (true)
+        {
+            Write("Введіть шлях до файлу: ");
+            string? filePath = ReadLine();
 
-      Write("Введіть ім'я файлу: ");
-      string? filePart1 = ReadLine();
+            if (!File.Exists(filePath))
+            {
+                WriteLine("Файл не існує!\n");
+                continue;
+            }
 
-      if (Directory.Exists(directoryPath) && Directory.Exists(directoryPath2) &&
-          File.Exists(Combine(directoryPath, filePart1)) &&
-          !File.Exists(Combine(directoryPath2, filePart1)))
-          {
+            Write("Введіть слово для пошуку: ");
+            string? searchWord = ReadLine();
+
+            if (string.IsNullOrWhiteSpace(searchWord))
+            {
+                WriteLine("Слово не може бути порожнім!\n");
+                continue;
+            }
+
             try
             {
-              File.Move(Combine(directoryPath, filePart1), Combine(directoryPath2, filePart1));
-              WriteLine($"Файл {filePart1} успішно переміщено.");
+                string text = ReadAllText(filePath);
+
+                char[] charArray = searchWord.ToCharArray();
+                Array.Reverse(charArray);
+                string reversedWord = new string(charArray);
+
+                int normalCount = Regex.Matches(text, @"\b" + Regex.Escape(searchWord) + @"\b", RegexOptions.IgnoreCase).Count;
+                int reversedCount = Regex.Matches(text, @"\b" + Regex.Escape(reversedWord) + @"\b", RegexOptions.IgnoreCase).Count;
+
+                if (normalCount > 0)
+                {
+                    WriteLine($"Слово '{searchWord}' знайдено.");
+                    WriteLine($"Кількість входжень слова: {normalCount}");
+                }
+                else
+                {
+                    WriteLine($"Слово '{searchWord}' не знайдено.");
+                }
+
+                WriteLine($"Кількість входжень у зворотному порядку ('{reversedWord}'): {reversedCount}");
+                break;
             }
             catch (Exception ex)
             {
-              WriteLine($"Помилка при переміщенні: {ex.Message}");
+                WriteLine($"Помилка при роботі з файлом: {ex.Message}\n");
             }
-            }
-            else
-            {
-                    WriteLine("Помилка: Неправильні шляхи, файл не знайдено або він вже існує в цільовій папці. Спробуйте ще раз.\n");
-            }
-    }
+        }
 
-    Collect();
-    WaitForPendingFinalizers();
-    WriteLine("\n[Система] Пам'ять успішно оптимізована та очищена.");
-    ReadKey();
-  }
+        ReadKey();
+    }
 }
 
 
