@@ -7,40 +7,25 @@ class Program
   {
     OutputEncoding = Encoding.UTF8;
 
-    while (true)
+while (true)
+{
+    Write("Введіть шлях до файлу(або 0 для виходу): ");
+    string? FilePath = ReadLine();
+
+    if (FilePath == "0")
     {
-      Write("Введіть шлях до оригінальної папки: ");
-      string? directoryPath = ReadLine();
-
-      Write("Введіть шлях, куди потрібно перемістити: ");
-      string? directoryPath2 = ReadLine();
-
-      Write("Введіть ім'я файлу: ");
-      string? filePart1 = ReadLine();
-
-      if (Directory.Exists(directoryPath) && Directory.Exists(directoryPath2) &&
-          File.Exists(Combine(directoryPath, filePart1)) &&
-          !File.Exists(Combine(directoryPath2, filePart1)))
-          {
-            try
-            {
-              File.Move(Combine(directoryPath, filePart1), Combine(directoryPath2, filePart1));
-              WriteLine($"Файл {filePart1} успішно переміщено.");
-            }
-            catch (Exception ex)
-            {
-              WriteLine($"Помилка при переміщенні: {ex.Message}");
-            }
-            }
-            else
-            {
-                    WriteLine("Помилка: Неправильні шляхи, файл не знайдено або він вже існує в цільовій папці. Спробуйте ще раз.\n");
-            }
+        break;
     }
+    if(!File.Exists(FilePath))
+    {
+        WriteLine("[Система] Файл не знайдено. Будь ласка, перевірте шлях та спробуйте ще раз. невдача");
+        continue;
+    }
+    string content = ReadAllText(FilePath);
+    WriteLine(content);
+    break;
+}
 
-    Collect();
-    WaitForPendingFinalizers();
-    WriteLine("\n[Система] Пам'ять успішно оптимізована та очищена.");
     ReadKey();
   }
 }
