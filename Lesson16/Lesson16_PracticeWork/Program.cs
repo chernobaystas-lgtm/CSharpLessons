@@ -21,8 +21,11 @@ while (true)
         WriteLine("[Система] Файл не знайдено. Будь ласка, перевірте шлях та спробуйте ще раз. невдача");
         continue;
     }
-    string content = ReadAllText(FilePath);
-    WriteLine(content);
+    using(StreamReader reader = new StreamReader(FilePath))
+            {
+                string content = reader.ReadToEndAsync().Result;
+                WriteLine(content);
+            }
     break;
 }
 
