@@ -1,78 +1,75 @@
 ﻿namespace LessonsMainCSharp;
+using System.Text.RegularExpressions;
 
 
 
 class Program
 {
-static void Main(string[] args)
+    static void Main(string[] args)
     {
-        Console.OutputEncoding = Encoding.UTF8;
+        OutputEncoding = Encoding.UTF8;
 
-        DirectoryInfo currentDir = new DirectoryInfo(AppContext.BaseDirectory);
+      while (true)
+{
+    Write("Введіть шлях до файлу: ");
+    string? inputPath = ReadLine();
 
-        FileInfo primeFile = new FileInfo(Combine(currentDir.FullName, "Primes.txt"));
-        FileInfo fibonacciFile = new FileInfo(Combine(currentDir.FullName, "Fibonacci.txt"));
-
-        Random random = new Random();
-        int[] numbers = new int[100];
-
-        for (int i = 0; i < 100; i++)
-        {
-            numbers[i] = random.Next(1, 1001);
-        }
-
-        int primeCount = 0;
-        int fibCount = 0;
-
-        using (StreamWriter primeWriter = primeFile.CreateText())
-        using (StreamWriter fibWriter = fibonacciFile.CreateText())
-        {
-            foreach (int num in numbers)
-            {
-                if (IsPrime(num))
-                {
-                    primeWriter.WriteLine(num);
-                    primeCount++;
-                }
-
-                if (IsFibonacci(num))
-                {
-                    fibWriter.WriteLine(num);
-                    fibCount++;
-                }
-            }
-        }
-
-        WriteLine("=== Статистика роботи додатку ===");
-        WriteLine($"Всього згенеровано чисел: 100");
-        WriteLine($"Знайдено та збережено простих чисел: {primeCount}");
-        WriteLine($"Знайдено та збережено чисел Фібоначчі: {fibCount}");
-        WriteLine($"Файли збережено в: {currentDir.FullName}");
-
-        ReadKey();
+    if (string.IsNullOrWhiteSpace(inputPath))
+    {
+        WriteLine("Шлях не може бути порожнім!\n");
+        continue;
     }
 
-    static bool IsPrime(int number)
-    {
-        if (number <= 1) return false;
-        if (number == 2) return true;
-        if (number % 2 == 0) return false;
+    FileInfo fileInfo = new FileInfo(inputPath);
 
-        for (int i = 3; i * i <= number; i += 2)
+    if (!fileInfo.Exists)
+    {
+        WriteLine("Файл не існує!\n");
+        continue;
+    }
+
+    Write("Введіть слово для пошуку: ");
+    string? searchWord = ReadLine();
+
+    Write("Введіть слово для заміни: ");
+    string? replaceWord = ReadLine();
+
+    if (string.IsNullOrWhiteSpace(searchWord) || replaceWord == null)
+    {
+        WriteLine("Некоректні слова для заміни!\n");
+        continue;
+    }
+
+    try
+    {
+        string text = File.ReadAllText(fileInfo.FullName);
+
+        string pattern = @"\b" + Regex.Escape(searchWord) + @"\b";
+        int matchesCount = Regex.Matches(text, pattern, RegexOptions.IgnoreCase).Count;
+
+        if (matchesCount > 0)
         {
-            if (number % i == 0) return false;
+            string updatedText = Regex.Replace(text, pattern, replaceWord, RegexOptions.IgnoreCase);
+            File.WriteAllText(fileInfo.FullName, updatedText);
+
+            WriteLine("\n=== Статистика роботи додатку ===");
+            WriteLine($"Слово '{searchWord}' успішно замінено на '{replaceWord}'.");
+            WriteLine($"Всього знайдено та змінено входжень: {matchesCount}");
         }
-        return true;
-    }
+        else
+        {
+            WriteLine($"\nСлово '{searchWord}' у файлі не знайдено. Замін не відбулося.");
+        }
 
-    static bool IsFibonacci(int number)
-    {
-        return IsPerfectSquare(5 * number * number + 4) || IsPerfectSquare(5 * number * number - 4);
+        break;
     }
-
-    static bool IsPerfectSquare(int x)
+    catch (Exception ex)
     {
-        int s = (int)Math.Sqrt(x);
-        return s * s == x;
+        WriteLine($"Помилка при роботе з файлом: {ex.Message}\n");
+    }
+}
+
+ReadKey();
+
     }
 }
