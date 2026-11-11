@@ -1,16 +1,15 @@
 [
   {
-    "Title": "12",
-    "Publisher": "32",
-    "ReleaseDate": "2020-11-11",
-    "PageCount": 21,
-    "Articles": []
-  },
-  {
-    "Title": "121",
-    "Publisher": "1212",
-    "ReleaseDate": "1111-11-11",
-    "PageCount": 111,
-    "Articles": []
+    "Title": "Рыбалка Жоры",
+    "Publisher": "Жора",
+    "ReleaseDate": "2026-11-11",
+    "Articles": [
+      {
+        "Title": "Щука",
+        "CharacterCount": 78912,
+        "Announcement": "нету"
+      }
+    ],
+    "PageCount": 44
   }
 ]
