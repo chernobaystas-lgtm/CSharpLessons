@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-lesson17",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Lesson17/Lesson17_PracticeWork/Lesson17_PracticeWork.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

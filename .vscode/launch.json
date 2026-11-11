@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Запуск Lesson 17",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-lesson17",
+            "program": "${workspaceFolder}/Lesson17/Lesson17_PracticeWork/bin/Debug/net10.0/Lesson17_PracticeWork.dll",
+            "cwd": "${workspaceFolder}/Lesson17/Lesson17_PracticeWork",
+            "console": "integratedTerminal"
+        }
+    ]
+}
