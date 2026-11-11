@@ -10,11 +10,14 @@ global using static System.IO.StreamReader;
 global using static System.IO.StreamWriter;
 global using static System.IO.Stream;
 global using System.Collections.Generic;
-global using static System.IO.File;
+global using static System.Text.Json.JsonSerializer;
+global using static System.IO.FileInfo;
+global using System.Text.Json;
+
 
 namespace LessonsMainCSharp;
 
 public class ForClasses
 {
-    
+
 }
