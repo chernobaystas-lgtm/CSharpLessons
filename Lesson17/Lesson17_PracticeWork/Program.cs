@@ -24,21 +24,62 @@ class Program
 
 
 
+
+public class Article
+{
+    public string Title { get; set; } = string.Empty;
+    public int CharacterCount { get; set; }
+    public string Announcement { get; set; } = string.Empty;
+
+    public Article() { }
+
+    public Article(string title, int characterCount, string announcement)
+    {
+        Title = title;
+        CharacterCount = characterCount;
+        Announcement = announcement;
+    }
+
+    public void Input()
+    {
+        Write("  Введите название статьи: ");
+        Title = ReadLine() ?? string.Empty;
+
+        Write("  Введите количество символов: ");
+        int chars;
+        while (!int.TryParse(ReadLine(), out chars) || chars <= 0)
+        {
+            Write("  Введите корректное число символов: ");
+        }
+        CharacterCount = chars;
+
+        Write("  Введите анонс статьи: ");
+        Announcement = ReadLine() ?? string.Empty;
+    }
+
+    public override string ToString()
+    {
+        return $"  - Статья: \"{Title}\" ({CharacterCount} симв.) | Анонс: {Announcement}";
+    }
+}
+
 public class Magazine
 {
     public string Title { get; set; } = string.Empty;
     public string Publisher { get; set; } = string.Empty;
     public DateOnly ReleaseDate { get; set; }
     public int PageCount { get; set; }
+    public List<Article> Articles { get; set; } = new();
 
     public Magazine() { }
 
-    public Magazine(string title, string publisher, DateOnly releaseDate, int pageCount)
+    public Magazine(string title, string publisher, DateOnly releaseDate, int pageCount, List<Article> articles)
     {
         Title = title;
         Publisher = publisher;
         ReleaseDate = releaseDate;
         PageCount = pageCount;
+        Articles = articles;
     }
 
     public void Input()
@@ -49,7 +90,6 @@ public class Magazine
         Write("Введите название издательства: ");
         Publisher = ReadLine() ?? string.Empty;
 
-        // 1. Исправлено: объявляем date до цикла
         Write("Введите дату выпуска (ГГГГ-ММ-ДД): ");
         DateOnly date;
         while (!DateOnly.TryParse(ReadLine(), out date))
@@ -58,7 +98,6 @@ public class Magazine
         }
         ReleaseDate = date;
 
-        // 2. Исправлено: объявляем pages до цикла
         Write("Введите количество страниц: ");
         int pages;
         while (!int.TryParse(ReadLine(), out pages) || pages <= 0)
@@ -66,26 +105,50 @@ public class Magazine
             Write("Введите корректное число страниц: ");
         }
         PageCount = pages;
+
+        Write("Сколько статей добавить в журнал? ");
+        int articleCount;
+        while (!int.TryParse(ReadLine(), out articleCount) || articleCount < 0)
+        {
+            Write("Введите число (0 или больше): ");
+        }
+
+        Articles.Clear();
+        for (int i = 0; i < articleCount; i++)
+        {
+            WriteLine($"\nСтатья #{i + 1}:");
+            Article article = new Article();
+            article.Input();
+            Articles.Add(article);
+        }
     }
 
     public override string ToString()
     {
-        return $"Журнал: \"{Title}\" | Издательство: {Publisher} | Дата: {ReleaseDate} | Страниц: {PageCount}";
+        string result = $"Журнал: \"{Title}\" | Издательство: {Publisher} | Дата: {ReleaseDate} | Страниц: {PageCount}\n";
+        result += "Список статей:\n";
+
+        if (Articles.Count == 0)
+        {
+            result += "  (статей пока нет)";
+        }
+        else
+        {
+            foreach (var article in Articles)
+            {
+                result += article.ToString() + "\n";
+            }
+        }
+
+        return result.TrimEnd();
     }
 
     public string ToJson()
     {
-        // 3. Исправлено: убран лишний using у JsonSerializerOptions
         var options = new JsonSerializerOptions { WriteIndented = true };
         return JsonSerializer.Serialize(this, options);
     }
 
-    public static Magazine? FromJson(string json)
-    {
-        return JsonSerializer.Deserialize<Magazine>(json);
-    }
-
-    // 4. Исправлено: добавлен параметр string filePath в скобки
     public void SaveToJSON(string filePath)
     {
         string json = ToJson();
@@ -100,7 +163,6 @@ public class Magazine
     {
         using (StreamReader reader = new StreamReader(filePath))
         {
-            // 5. Исправлено: заменен ReadToEndAsync() на синхронный ReadToEnd()
             string json = reader.ReadToEnd();
 
             Magazine? mag = JsonSerializer.Deserialize<Magazine>(json);
