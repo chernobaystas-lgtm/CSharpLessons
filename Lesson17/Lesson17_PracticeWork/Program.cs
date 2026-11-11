@@ -1,2 +1,12 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿namespace LessonsMainCSharp;
+
+
+class Program
+{
+  static void Main(string[] args)
+  {
+    OutputEncoding = Encoding.UTF8;
+
+
+  }
+}
