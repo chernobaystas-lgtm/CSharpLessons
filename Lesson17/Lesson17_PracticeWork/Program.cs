@@ -6,22 +6,38 @@ class Program
     {
         OutputEncoding = Encoding.UTF8;
 
-        string filePath = "magazine.json";
 
-        Magazine mag = new Magazine();
-        mag.Input();
+        string filePath = "magazines.json";
 
-        WriteLine("\n--- Введенные данные ---");
-        WriteLine(mag);
+        Write("Сколько журналов вы хотите создать? ");
+        int count;
+        while (!int.TryParse(ReadLine(), out count) || count <= 0)
+        {
+            Write("Введите корректное число (больше 0): ");
+        }
 
-        mag.SaveToJSON(filePath);
-        WriteLine($"\nЖурнал успешно сохранен в файл {filePath}!");
+        Magazine[] magazines = new Magazine[count];
 
-        WriteLine("\n--- Загружено из JSON файла ---");
-        Magazine.PrintFromJSON(filePath);
+        for (int i = 0; i < count; i++)
+        {
+            WriteLine($"\n=== Ввод данных для журнала #{i + 1} ===");
+            magazines[i] = new Magazine();
+            magazines[i].Input();
+        }
+
+        WriteLine("\n ВВЕДЕННЫЕ ЖУРНАЛЫ ");
+        foreach (var mag in magazines)
+        {
+            WriteLine(mag);
+        }
+
+        Magazine.SaveArrayToJSON(magazines, filePath);
+        WriteLine($"\nМассив журналов успешно сохранен в файл {filePath}!");
+
+        WriteLine("\n ЗАГРУЖЕНО ИЗ ФАЙЛА ");
+        Magazine.PrintArrayFromJSON(filePath);
     }
 }
-
 
 
 
@@ -143,15 +159,10 @@ public class Magazine
         return result.TrimEnd();
     }
 
-    public string ToJson()
+    public static void SaveArrayToJSON(Magazine[] magazines, string filePath)
     {
         var options = new JsonSerializerOptions { WriteIndented = true };
-        return JsonSerializer.Serialize(this, options);
-    }
-
-    public void SaveToJSON(string filePath)
-    {
-        string json = ToJson();
+        string json = JsonSerializer.Serialize(magazines, options);
 
         using (StreamWriter writer = new StreamWriter(filePath))
         {
@@ -159,15 +170,20 @@ public class Magazine
         }
     }
 
-    public static void PrintFromJSON(string filePath)
+    public static void PrintArrayFromJSON(string filePath)
     {
         using (StreamReader reader = new StreamReader(filePath))
         {
             string json = reader.ReadToEnd();
+            Magazine[]? magazines = JsonSerializer.Deserialize<Magazine[]>(json);
 
-            Magazine? mag = JsonSerializer.Deserialize<Magazine>(json);
-
-            WriteLine(mag);
+            if (magazines != null)
+            {
+                foreach (var mag in magazines)
+                {
+                    WriteLine(mag);
+                }
+            }
         }
     }
 }
